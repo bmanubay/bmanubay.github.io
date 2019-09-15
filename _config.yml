@@ -40,10 +40,16 @@ logo:                  /assets/icons/icon.png
 
 # This should be the same author as first entry in `_data/authors.yml`.
 author:
-  name:                <firstname> <lastname>
-  email:               <mail@domain.tld>
-  # Used by `jekyll-seo-tag`:
-  # twitter:             <username>
+  name:                Bryce Manubay
+  email:               bryce.manubay@colorado.edu
+  author.github:       bmanubay
+  about: |
+    Hi, I'm Bryce. Welcome to my website! This is going to be a platform for me to provide tutorials and thoughts
+    on modern data science and software tools/techniques. I'll use what I've learned from my education as an 
+    academic computational chemcal physicist and data scientist, as well as learn new techniques, in order to create
+    (hopefully) fun and interesting content.
+
+    
 
 # Add links to the sidebar.
 menu:
@@ -271,6 +277,7 @@ plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
   - jekyll-titles-from-headings
+  - jekyll-avatar
 
 # Theme
 # ---------------------------------------------------------------------------------------
