@@ -18,7 +18,7 @@ hide_description: true
 # TODO
 image: /assets/img/blog/hydejack-8.png
 ---
-
+---
 The "Best Jekyll Theme by a Mile".
 {:.lead}
 
@@ -195,3 +195,4 @@ This table below shows what's included in each version:
 [tinyletter]: https://tinyletter.com/
 
 *[FLIP]: First-Last-Invert-Play. A coding technique to achieve performant page transition animations.
+---
