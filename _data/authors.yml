@@ -25,8 +25,9 @@ author1:
   # Social media icons in sidebar.
   # Comment/uncommet to show/hide. Rearrange to change the order in which they appear.
   social:
-    #twitter:         jekyllrb
     github:          bmanubay
+    linkedin:        bryce-manubay-6887aa89
+    #twitter:         jekyllrb
     # download:        <url>
     # email:           <mail@domain.tld>
     # rss:             https://<url>/feed.xml
@@ -57,7 +58,6 @@ author1:
     # npm:             <username>
     # hackernews:      <username>
     # trello:          <firstnamelastname>
-     linkedin:        bryce-manubay-6887aa89
     # xing:            <firstname_lastname_counter>
     # blogger:         <number>
     # delicious:       <username>
