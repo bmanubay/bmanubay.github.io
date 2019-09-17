@@ -1,6 +1,6 @@
 ---
 layout: blog
-title: Example Content III
+title: Welcome to My Blog
 description: >
   A page showing Hydejack-specific markdown content.
 image: /assets/img/blog/example-content-iii.jpg
