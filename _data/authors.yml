@@ -4,6 +4,7 @@
 author1:
   # Replace <...> with your own (remove the < >)
   name:              Bryce Manubay
+  email:               bryce.manubay@colorado.edu
   
   # Used at the bottom of each page and at the top of the `about` layout
   # Markdown enabled, can use multiple paragraphs (enabled by `|`)
