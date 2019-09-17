@@ -1,5 +1,5 @@
 ---
-layout: blog
+layout: post
 title: Welcome to My Blog
 description: >
   Initial blog post: a little about me, what will appear here and why I'm doing this.
