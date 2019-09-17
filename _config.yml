@@ -41,6 +41,7 @@ logo:                  #/assets/img/random_walk.png
 # This should be the same author as first entry in `_data/authors.yml`.
 author:
   name:                Bryce Manubay
+  email:               bryce.manubay@colorado.edu
   author.github:       bmanubay
   about: |
     Hi, I'm Bryce. Welcome to my website! This is going to be a platform for me to provide tutorials and thoughts
