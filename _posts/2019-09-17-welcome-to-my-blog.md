@@ -3,6 +3,7 @@ layout: blog
 title: Welcome to My Blog
 description: >
   Initial blog post: a little about me, what will appear here and why I'm doing this.
+permalink: /blog/
 noindex: true
 ---
 ## Who am I and what is this?
