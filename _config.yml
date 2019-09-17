@@ -54,8 +54,6 @@ author:
 menu:
   - title: About
     url:   /about/
-  - title: Blog
-    url:   /blog/
   - title: Useful Tools
     url:   /useful_tools/
     
