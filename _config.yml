@@ -58,7 +58,7 @@ menu:
   - title: Blog
     url:   /blog/
   - title: Useful Tools
-    url:   /useful_tools
+    url:   /useful_tools/
     
 # Add links to the footer.
 # Typically you'll want to link to your cookie- or privacy policy (if appliable), etc..
