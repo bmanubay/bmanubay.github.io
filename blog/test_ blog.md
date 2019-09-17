@@ -3,7 +3,6 @@ layout: blog
 title: Example Content III
 description: >
   A page showing Hydejack-specific markdown content.
-permalink: /blog/
 noindex: true
 ---
 
