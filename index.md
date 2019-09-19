@@ -2,7 +2,6 @@
 layout: page
 title: Home
 cover: true
-image: /assets/img/hydejack-8.png
 #TODO: add search bar
 ---
 Howdy folks! Welcome to **Bryce's Random Walk**! This is my website and will be a platform for me to talk about data science, 
