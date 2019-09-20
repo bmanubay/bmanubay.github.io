@@ -36,7 +36,7 @@ this was beneficial and proactive enough to pursue, so here we are. Stay tuned f
 uncertain of a schedule yet, but I'll work on finding an optima in the space of post frequency and quality. Thanks for reading! 
 
 <figure>
-  <img alt="An image with a caption" src="https://github.com/bmanubay/bmanubay.github.io/blob/master/assets/img/dna_Si3N4_diff.gif" class="lead" />
+  <img alt="An image with a caption" src=/assets/img/dna_Si3N4_diff.gif class="lead" />
   <figcaption>A caption to an image.</figcaption>
 </figure>
 
