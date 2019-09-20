@@ -339,3 +339,5 @@ compress_html:
 
 sass:
   style:               compressed
+  
+markdown: GFM
