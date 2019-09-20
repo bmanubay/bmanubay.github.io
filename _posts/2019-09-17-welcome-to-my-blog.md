@@ -35,4 +35,9 @@ repertoire. I've had this idea for a while now, but just haven't made the effort
 this was beneficial and proactive enough to pursue, so here we are. Stay tuned for posts on data science, software and the like. I'm 
 uncertain of a schedule yet, but I'll work on finding an optima in the space of post frequency and quality. Thanks for reading! 
 
-![Look at this cool dealy](https://github.com/bmanubay/bmanubay.github.io/blob/master/assets/img/dna_Si3N4_diff.gif)
+<figure>
+  <img alt="An image with a caption" src="https://github.com/bmanubay/bmanubay.github.io/blob/master/assets/img/dna_Si3N4_diff.gif" class="lead" />
+  <figcaption>A caption to an image.</figcaption>
+</figure>
+
+
