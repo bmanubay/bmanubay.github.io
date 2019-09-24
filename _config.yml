@@ -322,7 +322,7 @@ relative_links:
 titles_from_headings:
   strip_title:         true
   collections:         true
-"""
+
 #kramdown:
 #  footnote_backlink:   '&#x21a9;&#xfe0e;'
 #  math_engine:         mathjax
