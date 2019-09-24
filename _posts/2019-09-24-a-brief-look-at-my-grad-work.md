@@ -18,7 +18,7 @@ Before we get into my graduate work, specifically, let's give a short, high-leve
 terms, MD is a simulation tool used to study how things move at a molecular or atomic scale. In its most common form, trajectories  
 of spatial positions of atoms over time are determined by solving Newton's Laws of Motion. 
 
-**Newton's Laws of Motion** \\
+**Newton's Laws of Motion** \
 
 $$
 \begin{aligned}
@@ -27,7 +27,7 @@ $$
   F\left(\mathbf{x}\right) = -\nabla U\left(\mathbf{x}\right)
 \end{aligned}
 $$
-\\
+\
 Where $$\mathbf{x}$$ is position, $$\mathbf{v}$$ is velocity, $$F\left(\mathbf{x}\right)$$ is interatomic force as a function of position and 
 $$U\left(\mathbf{x}\right)$$ is interatomic potenital energy as a function of position. 
 Specifically, the simulation makes very small time steps (often only a few femtoseconds), 
@@ -44,10 +44,6 @@ ligand binding.
   <figcaption>A short visualization I made from trajectory data ([found here](http://www.ks.uiuc.edu/Training/Tutorials/nanobio/) showing DNA diffusing through a  nanopore of Si\textsubscript{3)N\textsubscript{4} for testing as a higher throughput gene-sequencing material.</figcaption>
 </figure>
 
-<figure>
-  <img alt="An image with a caption" src="https://placehold.it/800x100" class="lead" data-width="800" data-height="100" />
-  <figcaption>A caption to an image.</figcaption>
-</figure>
 
 Overall, this is a pretty simple method for simulating molecules. No explicit quantum mechanics and just simple classical physics that we all learn from 
 high school. The only lingering question is **how the heck do we calculate that potential energy that we need in order to find our forces**? 
@@ -67,24 +63,24 @@ both initial parameterization and further refinement as well as [automated objec
 There are obviously a few issues with this. First of all, the idea of a single optima is naive at best. It's reasonable to believe that in a parameter space 
 that complex that there would be many disparate optima that are essentially equal and deserving of comparison. Second, choice of potential models is not
 necessarily a constant or obvious as to what's best. Let's take, for example, long-range, non-bonded potentials. The following are just a few common choices of model:
-\\
-- 12-6 Lennard Jones Potential: $$V_{\text{LJ}}=\varepsilon \left[\left({\frac {r_{\text{m}}}{r}}\right)^{12}-2\left({\frac {r_{\text{m}}}{r}}\right)^{6}\right]$$ \\ 
-- Buckingham Potential: $$V_{\text{B}}=\gamma \left[e^{-r/r_{1}}-\left({\frac {r_{0}}{r}}\right)^{6}\right]$$ \\
-- Morse Potential: $$V'(r)=D_{e}(1-e^{-a(r-r_{e})})^{2}$$
-- Morse/Long-Range Potential: $$V(r)={\mathfrak {D}}_{e}\left(1-{\frac {u(r)}{u(r_{e})}}e^{-\beta (r)y_{p}^{r_{\rm {eq}}}(r)}\right)^{2}$$ \\
-\\
+\
+- 12-6 Lennard Jones Potential: $$V_{\text{LJ}}=\varepsilon \left[\left({\frac {r_{\text{m}}}{r}}\right)^{12}-2\left({\frac {r_{\text{m}}}{r}}\right)^{6}\right]$$ \
+- Buckingham Potential: $$V_{\text{B}}=\gamma \left[e^{-r/r_{1}}-\left({\frac {r_{0}}{r}}\right)^{6}\right]$$ \
+- Morse Potential: $$V'(r)=D_{e}(1-e^{-a(r-r_{e})})^{2}$$ \
+- Morse/Long-Range Potential: $$V(r)={\mathfrak {D}}_{e}\left(1-{\frac {u(r)}{u(r_{e})}}e^{-\beta (r)y_{p}^{r_{\rm {eq}}}(r)}\right)^{2}$$ \
+\
 Given all of these potential choices, which one do we choose for our force field? How do we quantitatively compare them? An answer that the 
 Open Force Field Initiative came to was reframing the force field optimization problem as a Bayesian inference problem. Let's take a quick aside
 in order to look at Bayes' Theorem. 
 
-**Bayes' Theorem**\\
+**Bayes' Theorem**\
 
 $$
 \begin{aligned}
   P\left(\Theta | D\right) = \frac{P\left(D | \Theta\right)P\left(\Theta\right)}{P\left(D\right)}
 \end{aligned}
 $$
-\\ 
+\
 
 In the above, $$\Theta$$ are the parameters of our model (or specifically our force field parameters) and $$D$$ is our data or evidence that we're "training" with. 
 All the terms of this equation also have specific names. $$P\left(\Theta\right)$$ is called a prior distribution; it represents our beliefs and previous knowledge about
@@ -143,14 +139,14 @@ expand the results of your original simulation to a sufficiently close state poi
 configuration space (or probability distributions) sampled by the state0s are sufficiently similar and overlap, we can get very good estimates of properties
 at other state points using the configurations of just one simulation. The form turns out to be very simple.
 
-**Reweighting Expectation**\\
+**Reweighting Expectation**\
 
 $$
 \begin{aligned}
-{\langle O\left(\Theta | D\right) \rangle}_i = \frac{1}{N} \sum_{n=1}^N O\left(\vec{x}_n\right) \left(\frac{p_i\left(\vec{x}_n\right)}{p_j\left(\vec{x}_n\right)} \right)
+{\langle O \rangle}_i = \frac{1}{N} \sum_{n=1}^N O\left(\vec{x}_n\right) \left(\frac{p_i\left(\vec{x}_n\right)}{p_j\left(\vec{x}_n\right)} \right)
 \end{aligned}
 $$
-\\
+\
 
 The above shows how to find the expectation of observables in some state(s) *i*, from N configuration ($$\vec{x}$$) samples in state(s) *j*. The trick is that we
 can find the ratio of probability distributions from a ratio of internal energy (or enthalpy) distributions. We simply use the configurations that we sampled from
@@ -165,18 +161,18 @@ second, realizations are generated extremely fast (even though it's not a non-pa
 formalise the estimation of some quantity $$Z$$ at unknown location $$x_0$$ ($$Z\left(x_0\right)$$) from N pairs of observed values, $$w_i\left(x_0\right)$$ 
 and $$Z\left(x_i\right)$$, where $$i = 1,...,N$$, with the following:
 
-**Kriging form**\\
+**Kriging form**\
 
 $$
 \begin{aligned} 
   \hat{Z}\left(x_0\right) = \sum_{i=1}^N w_i\left(x_0\right) \times Z\left(x_i\right) 
 \end{aligned}
 $$
-\\
+\
                 
 We find our weight matrix, \textbf{W}, by minimizing \textbf{W} subject to the following system of equations:
+\
 
-\\
 $$
 \begin{aligned}
   &\underset{W}{\text{minimize}}& & W^T \cdot \operatorname{Var}_{x_i} \cdot W - \operatorname{Cov}_{x_ix_0}^T \cdot W - W^T \cdot \operatorname{Cov}_{x_ix_0} + \operatorname{Var}_{x_0} \\              	
@@ -184,13 +180,13 @@ $$
   & &\mathbf{1}^T \cdot W = 1
 \end{align}
 $$                	
+\
 
-Where the literals $$\begin{equation}\left\{\operatorname{Var}_{x_i}, \operatorname{Var}_{x_0},\operatorname{Cov}_{x_ix_0}\right\}\end{equation}$$ stand for
-$$\begin{equation}\left\{\operatorname{Var}\left(\begin{bmatrix}Z(x_1)&\cdots&Z(x_N)\end{bmatrix}^T\right), \operatorname{Var}(Z(x_0)), 
-\operatorname{Cov} \left(\begin{bmatrix}Z(x_1)&\cdots&Z(x_N)\end{bmatrix}^T,Z(x_0)\right)\right\}\end{equation}$$
+Where the literals $$\left\{\operatorname{Var}_{x_i}, \operatorname{Var}_{x_0}, \operatorname{Cov}_{x_ix_0}\right\}$$ stand for
+$$\left\{\operatorname{Var}\left(\begin{bmatrix}Z(x_1)&\cdots&Z(x_N)\end{bmatrix}^T\right), \operatorname{Var}(Z(x_0)), 
+\operatorname{Cov} \left(\begin{bmatrix}Z(x_1)&\cdots&Z(x_N)\end{bmatrix}^T,Z(x_0)\right)\right\}$$
 
-The weights summarize important procedures of the inference process like the structural closeness of samples to the estimation location, $$x_0$$.They also
-have a desegregating effect, to avoid bias caused by sample clustering.
+The weights summarize important procedures of the inference process like the structural closeness of samples to the estimation location, $$x_0$$.They also have a desegregating effect, to avoid bias caused by sample clustering.
 
 
 
