@@ -322,14 +322,14 @@ relative_links:
 titles_from_headings:
   strip_title:         true
   collections:         true
-
-kramdown:
-  footnote_backlink:   '&#x21a9;&#xfe0e;'
-  math_engine:         mathjax
-  math_engine_opts:
-    preview:           true
-    preview_as_code:   true
-
+"""
+#kramdown:
+#  footnote_backlink:   '&#x21a9;&#xfe0e;'
+#  math_engine:         mathjax
+#  math_engine_opts:
+#    preview:           true
+#    preview_as_code:   true
+    
 compress_html:
   comments:            ["<!-- ", " -->"]
   clippings:           all
@@ -340,5 +340,10 @@ compress_html:
 sass:
   style:               compressed
   
-markdown: GFM
+GFM:
+  footnote_backlink:   '&#x21a9;&#xfe0e;'
+  math_engine:         mathjax
+  math_engine_opts:
+    preview:           true
+    preview_as_code:   true
 
