@@ -9,7 +9,8 @@ Welcome back to the blog folks! Today's post is going to give more depth on my "
 ## What are MD simulations, how do they work and what are they good for?
 Before we get into my graduate work, specifically, let's give a short, high-level overview of MD, how it works and what it's good for. In very simple terms, MD is a simulation tool used to study how things move at a molecular or atomic scale. In its most common form, trajectories of spatial positions of atoms over time are determined by solving Newton's Laws of Motion. 
 
-**Newton's Laws of Motion** 
+**Newton's Laws of Motion**   
+
 $$
 \begin{aligned}
   &\frac{\partial\mathbf{x}}{\partial t} = \mathbf{v} \\[2em]
@@ -34,7 +35,8 @@ Up until now, determining force fields has been treated as a very high dimension
 
 Given all of these potential choices, which one do we choose for our force field? How do we quantitatively compare them? An answer that the Open Force Field Initiative came to was reframing the force field optimization problem as a Bayesian inference problem. Let's take a quick aside in order to look at Bayes' Theorem. 
 
-**Bayes' Theorem**
+**Bayes' Theorem**  
+
 $$
 \begin{aligned}
   P\left(\Theta \vert D\right) = \frac{P\left(D \vert \Theta\right)P\left(\Theta\right)}{P\left(D\right)}
@@ -43,7 +45,8 @@ $$
 
 In the above, $$\Theta$$ are the parameters of our model (or specifically our force field parameters) and $$D$$ is our data or evidence that we're "training" with. All the terms of this equation also have specific names. $$P\left(\Theta\right)$$ is called a prior distribution; it represents our beliefs and previous knowledge about parameters before we introduce any data. A simple, adequate example of a prior distribution on a bond length parameter in a spring potential would be a uniform distribution on the physically relevant ranges of that bond length. The next term of Bayes' Theorem is $$P\left(D \vert \Theta\right)$$; this is our likelihood distribution. This is the part of Bayes' Theorem that allows us to quantitatively explore parameter space and see which combinations of parameters are well matched to reproduce the evidence we're using. The next part of Bayes' is $$P\left(\Theta \vert D\right)$$, or the posterior distribution. This is our belief in the distribution of parameters given our evidence. It's the main thing that want to find. Given our data/evidence, what are the most probabilistically likely force fields? For every combination of parameters that we sample from, the posterior distribution encodes a probability that that is likely. Finally, our last term is $$P\left(D\right)$$ referred to as the marginal likelihood. This is a scaling factor (as in it's not a distribution, it's just a constant) that normalizes our posterior distribution. For most Bayesian inference calculations, it doesn't factor in (luckily for us, because it's actually quite difficult to calculate). Since we use some kind of Markov Chain Monte Carlo in order to sample from our posterior distribution, exact realizations aren't really important, as long as they're all scaled by the same factor. Therefore, we often write Bayes' Theorem as follows.
 
-**Also Bayes' Theorem**
+**Also Bayes' Theorem**  
+
 $$
 \begin{aligned}
   P\left(\Theta \vert D\right) \propto P\left(D \vert \Theta\right)P\left(\Theta\right)
@@ -57,11 +60,12 @@ Alright, back to the force field problem. The burdens of choice (like "which pot
 ## What was my primary contribution to the Open Force Field Intiative and what are the most useful skills that I learned? 
 One HUGE bottleneck to Bayesian inference driven force field parameterization is the time it takes to run our forward data model at each new set of parameters as we sample from the posterior distribution. For a [liquid phase simulation of some biologically relevant small molecules, it takes about 1 hour of wall time on a GPU](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005659) to get good data and statistics. That is ONE forward model realization at ONE point in parameter space for a few HUNDRED dimensional problem. If we were to take this vanilla forward data model approach, the problem is intractable; it simply takes too long. My job in the Open Force Field was how to figure out ways to shorten that. I settled on using a hierarchical scheme in order to estimate the thermophysical properties that we use to compare to our evidence. Below is a simple figure illustrating the scheme. 
 
-![DNA diffusing through a  nanopore](/assets/img/hierarchical_property_calculation_pyramid.png)*A representation of the hierarchical property calculation scheme.*
+![hierarchical property calculation scheme](/assets/img/hierarchical_property_calculation_pyramid.png)*A representation of the hierarchical property calculation scheme.*
 
 It is a three level, multi-fidelity calculation scheme. We start with a full MD simulation in order to generate a robust configuration ensemble. From that single, well-described state point we can estimate properties (specifically the thermophysical properties that we are going to use to constrain our force field) at many local state points using a multi-state statistical reweighting technique like the [Multistate Bennett Acceptance Ratio (or MBAR)](https://arxiv.org/abs/1704.00891). A nice feature of ensemble configuration simulations, such as MD or Monte Carlo, is that the configurations they sample contain a huge amount of information and it turns out that you can expand the results of your original simulation to a sufficiently close state point (or pointS!!). In particular, as long as the configuration space (or probability distributions) sampled by the state0s are sufficiently similar and overlap, we can get very good estimates of properties at other state points using the configurations of just one simulation. The form turns out to be very simple.
 
-**Reweighting Expectation**
+**Reweighting Expectation**  
+
 $$
 \begin{aligned}
 {\langle O \rangle}_i = \frac{1}{N} \sum_{n=1}^N O\left(\vec{x}_n\right) \left(\frac{p_i\left(\vec{x}_n\right)}{p_j\left(\vec{x}_n\right)} \right)
@@ -72,7 +76,8 @@ The above shows how to find the expectation of observables in some state(s) *i*,
 
 Okay, great, now we have a set of minimum variance, unbiased observables in a local parameter space with pretty minimal computational cost. However, we can go one step further in generating realizations of our forward data model as a function of force field parameter rapidly (like analytical model, rapidly). The final stage of our multifidelity calculation scheme is to construct a regression-type model of our observables over parameter space from the calculations we made using reweighting. There are many possibilities for choice of regression technique, but a robust starting point we ended up on was Gaussian process regression or kriging. Kriging is a good choice because, first, estimates have been shown to be stable and accurate for parameter spaces up to around 20 dimensions and, second, realizations are generated extremely fast (even though it's not a non-parametric regression and is more similar to reweighting in how it works). We formalise the estimation of some quantity $$Z$$ at unknown location $$x_0$$ ($$Z\left(x_0\right)$$) from N pairs of observed values, $$w_i\left(x_0\right)$$ and $$Z\left(x_i\right)$$, where $$i = 1,...,N$$, with the following:
 
-**Kriging form**
+**Kriging form**  
+
 $$
 \begin{aligned} 
   \hat{Z}\left(x_0\right) = \sum_{i=1}^N w_i\left(x_0\right) \times Z\left(x_i\right) 
