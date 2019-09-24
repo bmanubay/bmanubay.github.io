@@ -340,7 +340,7 @@ compress_html:
 sass:
   style:               compressed
   
-markdown: GFM
+#markdown: GFM
 kramdown:
   math_engine:         mathjax # this is not a typo
   math_engine_opts:
