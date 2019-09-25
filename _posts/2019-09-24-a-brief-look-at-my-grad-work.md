@@ -21,8 +21,9 @@ $$
 
 Where $$\mathbf{x}$$ is position, $$\mathbf{v}$$ is velocity, $$F\left(\mathbf{x}\right)$$ is interatomic force as a function of position and $$U\left(\mathbf{x}\right)$$ is interatomic potenital energy as a function of position. Specifically, the simulation makes very small time steps (often only a few femtoseconds), at each step calculating forces on each particle in the system and updating the positions and velocities of said particles at each step using [some kind of time symmetric integration method](https://en.wikipedia.org/wiki/Verlet_integration) (there are many ways to do this and is a very active field of research in itself). This process of take a step, calculate force, update position and velocity repeats for (hopefully) some physically relevant time-scale in order to observe a molecular phenomena or process under study. MD simulations are very accurate when used correctly. They are often used to find drug leads (everything from simulating whether or not the molecule is stable to how it binds with a therapeutic target to its crystalline polymorphism and bioavailability), calculate physical properties of different species with high accuracy and visualize protein folding and ligand binding.  
 
-![DNA diffusing through a  nanopore](/assets/img/dna_Si3N4_diff.gif)
-*A short visualization I made from trajectory data ([found here](http://www.ks.uiuc.edu/Training/Tutorials/nanobio/) showing DNA diffusing through a  nanopore of Si\textsubscript{3)N\textsubscript{4} for testing as a higher throughput gene-sequencing material.*
+![DNA diffusing through a  nanopore](/assets/img/dna_Si3N4_diff.gif)  
+
+*A short visualization I made from trajectory data ([found here](http://www.ks.uiuc.edu/Training/Tutorials/nanobio/) showing DNA diffusing through a  nanopore of Si<sub>3</sub>N<sub>4</sub>} for testing as a higher throughput gene-sequencing material.*  
 
 Overall, this is a pretty simple method for simulating molecules. No explicit quantum mechanics and just simple classical physics that we all learn from high school. The only lingering question is **how the heck do we calculate that potential energy that we need in order to find our forces**? A great question and at its cores lies one of the most confounding parts of all MD and classical mechanics simulation. How we actually calculate the potential is quite simple. We use a set of potential equations and chemistry specific parameters in order to calculate the short-range, long-range and bonded potentials of the system as a function of position. We call this set of equations and parameters a "Force Field". Most of these potentials are easy to understand; think like Lennard-Jones non-bonded potential energy, spring potentials for the energy of a bonded pair of atoms, etc. The more complicated part (and the part that's a bit of a black box for most non-expert users of the method) is the parameter part of a force field. Where do these parameters come from? How do we assign them? We'll cover this conundrum in the next section.     
 
@@ -61,8 +62,9 @@ Alright, back to the force field problem. The burdens of choice (like "which pot
 ## What was my primary contribution to the Open Force Field Intiative and what are the most useful skills that I learned? 
 One HUGE bottleneck to Bayesian inference driven force field parameterization is the time it takes to run our forward data model at each new set of parameters as we sample from the posterior distribution. For a [liquid phase simulation of some biologically relevant small molecules, it takes about 1 hour of wall time on a GPU](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005659) to get good data and statistics. That is ONE forward model realization at ONE point in parameter space for a few HUNDRED dimensional problem. If we were to take this vanilla forward data model approach, the problem is intractable; it simply takes too long. My job in the Open Force Field was how to figure out ways to shorten that. I settled on using a hierarchical scheme in order to estimate the thermophysical properties that we use to compare to our evidence. Below is a simple figure illustrating the scheme. 
 
-![hierarchical property calculation scheme](/assets/img/hierarchical_property_calculation_pyramid.png)
-*A representation of the hierarchical property calculation scheme.*
+![hierarchical property calculation scheme](/assets/img/hierarchical_property_calculation_pyramid.png)  
+
+*A representation of the hierarchical property calculation scheme.*  
 
 It is a three level, multi-fidelity calculation scheme. We start with a full MD simulation in order to generate a robust configuration ensemble. From that single, well-described state point we can estimate properties (specifically the thermophysical properties that we are going to use to constrain our force field) at many local state points using a multi-state statistical reweighting technique like the [Multistate Bennett Acceptance Ratio (or MBAR)](https://arxiv.org/abs/1704.00891). A nice feature of ensemble configuration simulations, such as MD or Monte Carlo, is that the configurations they sample contain a huge amount of information and it turns out that you can expand the results of your original simulation to a sufficiently close state point (or pointS!!). In particular, as long as the configuration space (or probability distributions) sampled by the state0s are sufficiently similar and overlap, we can get very good estimates of properties at other state points using the configurations of just one simulation. The form turns out to be very simple.
 
@@ -104,12 +106,14 @@ The weights summarize important procedures of the inference process like the str
 
 And now we have a linear unbiased estimator of our observables over parameter space. I can now use my kriging model as the forward data model for my Bayesian inference sampling and rather than getting one forward data iteration in an hour, I can get  use some MCMC scheme to sample from some distribution that's proportional to my true posterior distribution by some constant. The idea now is that we use the kriging model to sample exhaustively from the posterior and run a new simulation at the state point where sampling becomes stationary. We repeat this process of run new simulation, add simulation to configuration pool, run MBAR in local space, regress those observables with kriging and sample from posterior using the kriging model until the distribution we sample stops changing within some tolerance. A nice visual representation of the process is shown below. 
 
-![hierarchical sample scheme](/assets/img/hierarchical_sample__scheme.png)
-*A representation of the hierarchical sample scheme.*
+![hierarchical sample scheme](/assets/img/hierarchical_sample__scheme.png)  
+
+*A representation of the hierarchical sample scheme.*  
 
 If we use a toy problem with 4 dimensions (the LJ parameters for C-H and C-C pairs), where we use synthetic evidence produced with an MD simulation, we rapidly approach the LJ parameters used to create the evidence after just a single iteration (even when the initial state is very far away within physically relvant constraints).
 
-![triangle plot after 1 iter](/assets/img/1_iter_4D_sample_high_dist.png)
-*Triangle plot showing the rapid convergence of our posterior to the true parameter values after 1 iteration. The red lines denote our reference simulation state and the blue our true parameter values. The red lines are +/-15% different of the true values, which is considerable.*
+![triangle plot after 1 iter](/assets/img/1_iter_4D_sample_high_dist.png)  
+
+*Triangle plot showing the rapid convergence of our posterior to the true parameter values after 1 iteration. The red lines denote our reference simulation state and the blue our true parameter values. The red lines are +/-15% different of the true values, which is considerable.*  
 
 In future posts, I'll be going over and demonstrating many of the techniques discussed here, giving tutorials with Python and getting into many more technical details that I could not for the sake of making this post shorter than my thesis. Until next time!
