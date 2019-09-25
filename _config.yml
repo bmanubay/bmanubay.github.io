@@ -42,6 +42,7 @@ logo:                  #/assets/img/random_walk.png
 author:
   name:                Bryce Manubay
   author.github:       bmanubay
+  email:               bryce.manubay@gmail.com
   about: |
     Hi, I'm Bryce. Welcome to my website! This is going to be a platform for me to provide tutorials and thoughts
     on modern data science and software tools/techniques. I'll use what I've learned from my education as an 
