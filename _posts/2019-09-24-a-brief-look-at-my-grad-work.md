@@ -2,7 +2,7 @@
 layout: post
 title: A Brief Look at my Graduate Work
 description: >
-  Initial blog post: More on what my graduate work was and my intro to applied stats and data science.
+  Initial blog post: More on what my graduate work was and my real intro to applied stats and data science.
 noindex: true
 ---
 Welcome back to the blog folks! Today's post is going to give more depth on my "real" introduction to data science and software development and what my research in graduate school was centered around. I use "real" (note the quotation marks) because while I already had had my soft intro to useuful stats and software as an undergrad, this was my whole job and study now and I jumped in the deep end. In the [previous post](https://bmanubay.github.io/2019-09-17-welcome-to-my-blog/) I spoke briefly about my work in molecular dynamics (MD) research and how it got me more deeply involved and studied in applied math and stats. This post will shed some light on what classical mechanics simulations are, how they work and specifically what my work was contributing to them. 
@@ -100,13 +100,12 @@ $$\left\{\operatorname{Var}\left(\begin{bmatrix}Z(x_1)&\cdots&Z(x_N)\end{bmatrix
 
 The weights summarize important procedures of the inference process like the structural closeness of samples to the estimation location, $$x_0$$.They also have a desegregating effect, to avoid bias caused by sample clustering.
 
+And now we have a linear unbiased estimator of our observables over parameter space. I can now use my kriging model as the forward data model for my Bayesian inference sampling and rather than getting one forward data iteration in an hour, I can get  use some MCMC scheme to sample from some distribution that's proportional to my true posterior distribution by some constant. The idea now is that we use the kriging model to sample exhaustively from the posterior and run a new simulation at the state point where sampling becomes stationary. We repeat this process of run new simulation, add simulation to configuration pool, run MBAR in local space, regress those observables with kriging and sample from posterior using the kriging model until the distribution we sample stops changing within some tolerance. A nice visual representation of the process is shown below. 
 
+![hierarchical sample scheme](/assets/img/hierarchical_sample__scheme.png)*A representation of the hierarchical sample scheme.*
 
+If we use a toy problem with 4 dimensions (the LJ parameters for C-H and C-C pairs), where we use synthetic evidence produced with an MD simulation, we rapidly approach the LJ parameters used to create the evidence after just a single iteration (even when the initial state is very far away within physically relvant constraints).
 
+![triangle plot after 1 iter](/assets/img/1_iter_4D_sample_high_dist.png)*Triangle plot showing the rapid convergence of our posterior to the true parameter values after 1 iteration. The red lines denote our reference simulation state and the blue our true parameter values. The red lines are +/-15% different of the true values, which is considerable.*
 
-
-
-
-
-
- 
+In future posts, I'll be going over and demonstrating many of the techniques discussed here, giving tutorials with Python and getting into many more technical details that I could not for the sake of making this post shorter than my thesis. Until next time!
