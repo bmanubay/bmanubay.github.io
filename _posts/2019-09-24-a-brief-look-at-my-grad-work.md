@@ -4,6 +4,7 @@ title: A Brief Look at my Graduate Work
 description: >
   Initial blog post: More on what my graduate work was and my real intro to applied stats and data science.
 noindex: true
+comments: true
 ---
 Welcome back to the blog folks! Today's post is going to give more depth on my "real" introduction to data science and software development and what my research in graduate school was centered around. I use "real" (note the quotation marks) because while I already had had my soft intro to useuful stats and software as an undergrad, this was my whole job and study now and I jumped in the deep end. In the [previous post](https://bmanubay.github.io/2019-09-17-welcome-to-my-blog/) I spoke briefly about my work in molecular dynamics (MD) research and how it got me more deeply involved and studied in applied math and stats. This post will shed some light on what classical mechanics simulations are, how they work and specifically what my work was contributing to them. 
 ## What are MD simulations, how do they work and what are they good for?
