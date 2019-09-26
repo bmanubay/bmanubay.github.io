@@ -116,4 +116,4 @@ If we use a toy problem with 4 dimensions (the LJ parameters for C-H and C-C pai
 
 *Triangle plot showing the rapid convergence of our posterior to the true parameter values after 1 iteration. The red lines denote our reference simulation state and the blue our true parameter values. The red lines are +/-15% different of the true values, which is considerable.*  
 
-In future posts, I'll be going over and demonstrating many of the techniques discussed here, giving tutorials with Python and getting into many more technical details that I could not for the sake of making this post shorter than my thesis. Until next time!lil test
+In future posts, I'll be going over and demonstrating many of the techniques discussed here, giving tutorials with Python and getting into many more technical details that I could not for the sake of making this post shorter than my thesis. Until next time!
