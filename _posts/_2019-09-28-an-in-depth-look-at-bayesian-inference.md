@@ -58,7 +58,35 @@ $$
 
 In the above, $$T$$ is temperature, $$p$$ is pressure and $$\rho$$ is mass density. The parameters $$\alpha$$ and $$\beta$$ are physically relevant quantities known as the isobaric coefficient of thermal expansion and local isothermal compressibility, respectively. The remaining parameters $$\rho_0$$, $$T_0$$ and $$p_0$$ are reference values of density, temperature and pressure likely to occur in the range of values given by the problem of interest. 
 
-## Setting Up our MCMC Model
+## Setting Up the MCMC Model
+For this little project, the primary differences between the parameterizations were in how the MCMC models were setup and implemented, so it's important to get a detailed run down of what I did. The first model was very vanilla. Uniform priors were used for all of our parameters where the bounds for $$rho_0$$, $$T_0$$ and $$p_0$$ were given by the evidence and the bounds of $$\alpha$$ and $$\beta$$ were just guessed to be between 0 and 1. I also included a sixth parameter for estimate measurement uncertainty ($$\sigma$$) with a uniform prior from 0 to 1 (given the scale of the evidence values). I used a likelihood function assuming normally distributed errors. Below is a nice symbolic summary. 
+
+**Model Summary**
+*Parameters*
+$$
+\begin{aligned}
+  \Theta = {\rho_0,\alpha,T_0,\beta,p_0,\sigma}
+\end{aligned}
+$$   
+$$
+*Priors*
+$$
+\begin{aligned}
+  \P\left(\rho_0\right) ~ \mathit{U}\left(0.6,0.9\right)
+  \P\left(\alpha\right) ~ \mathit{U}\left(0,1\right)
+  \P\left(T_0\right) ~ \mathit{U}\left(40,390\right)
+  \P\left(\beta\right) ~ \mathit{U}\left(0,1\right)
+  \left(p_0\right) ~ \mathit{U}\left(2000,27000\right)
+  \left(\sigma\right) ~ \mathit{U}\left(0,1\right)
+\end{aligned}
+$$  
+*Likelihood*
+$$
+\begin{aligned}
+   P\left(D \vert \Theta\right) = \Pi_{j=1}^{n} \left(2\pi\sigma^2\right)^{-1/2}\exp\left(-\frac{1}{2}\frac{\left(D_j-M(\Theta)\right)^2}{\sigma^2}\right)
+\end{aligned}
+$$
+Where $$M(\Theta)$$ (our forward data model) is Furbish's from earlier.
 
 ## Implementations in `emcee` and `PyMC3`
 
