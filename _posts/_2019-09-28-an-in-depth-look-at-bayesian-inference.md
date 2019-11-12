@@ -88,6 +88,8 @@ $$
 $$
 Where $$M(\Theta)$$ (our forward data model) is Furbish's from earlier.
 
+The second model used changed the uninformative flat priors to weakly informative normal priors on all of the parameters and, additionally, hyperpriors on the mean and standard deviations of the normal priors on $$\rho_0$$ and $$\alpha$$ (making the entire model weakly hierarchical). Ultimately, this choice was made becuase of the strong correlations between the two parameters and the difficulty of `PyMC3`'s gradient-enhanced sampler exploring the parameter space because of it. The choice of likelihood remained the same.   
+
 ## Implementations in `emcee` and `PyMC3`
 
 ## Analysis
