@@ -61,7 +61,7 @@ In the above, $$T$$ is temperature, $$p$$ is pressure and $$\rho$$ is mass densi
 ## Setting Up the MCMC Model
 For this little project, the primary differences between the parameterizations were in how the MCMC models were setup and implemented, so it's important to get a detailed run down of what I did. The first model was very vanilla. Uniform priors were used for all of our parameters where the bounds for $$rho_0$$, $$T_0$$ and $$p_0$$ were given by the evidence and the bounds of $$\alpha$$ and $$\beta$$ were just guessed to be between 0 and 1. I also included a sixth parameter for estimate measurement uncertainty ($$\sigma$$) with a uniform prior from 0 to 1 (given the scale of the evidence values). I used a likelihood function assuming normally distributed errors. Below is a nice symbolic summary. 
 
-**Model Summary**
+**Uninformative Prior Model Summary**
 *Parameters*
 $$
 \begin{aligned}
@@ -88,9 +88,80 @@ $$
 $$
 Where $$M(\Theta)$$ (our forward data model) is Furbish's from earlier.
 
-The second model used changed the uninformative flat priors to weakly informative normal priors on all of the parameters and, additionally, hyperpriors on the mean and standard deviations of the normal priors on $$\rho_0$$ and $$\alpha$$ (making the entire model weakly hierarchical). Ultimately, this choice was made becuase of the strong correlations between the two parameters and the difficulty of `PyMC3`'s gradient-enhanced sampler exploring the parameter space because of it. The choice of likelihood remained the same.   
+The second model used changed the uninformative flat priors to weakly informative normal priors on all of the parameters and, additionally, hyperpriors on the mean and standard deviations of the normal priors on $$\rho_0$$ and $$\alpha$$ (making the entire model weakly hierarchical). Ultimately, this choice was made becuase of the strong correlations between the two parameters and the difficulty of `PyMC3`'s gradient-enhanced sampler exploring the parameter space because of it. The choice of likelihood remained the same. Again, this is nicely summarized symbolically.
+
+**Hierarchical Normal Prior Model Summary**
+*Priors*
+$$
+\begin{aligned}
+  \P\left(\mu_{\rho_0}\right) ~ \mathcal{N}\left(\mu=0.75,\sigma=0.01\right)
+  \P\left(\sigma_{\rho_0}\right) ~ \mathcal{HC}\left(s=0.01\right)
+  \P\left(\rho_0\right) ~ \mathcal{N}\left(\mu_{\rho_0},\sigma_{\rho_0}\right)
+  \P\left(\mu_{\alpha}\right) ~ \mathcal{N}\left(\mu=5x10^{-3},\sigma=10^{-3}\right)
+  \P\left(\sigma_{\alpha}\right) ~ \mathcal{HC}\left(s=10^{-3}\right)
+  \P\left(\alpha\right) ~ \mathcal{N}\left(\mu_{\alpha},\sigma_{\alpha}\right)
+  \P\left(T_0\right) ~ \mathcal{N}\left(\mu=200,\sigma=10^2\right)
+  \P\left(\beta\right) ~ \mathcal{N}\left(\mu=0,\sigma=10^{-5}\right)
+  \left(p_0\right) ~ \mathcal{N}\left(\mu=14000,\sigma=6x10^{3}\right)
+  \left(\sigma\right) ~ \mathcal{HC}\left(s=0.05\right)
+\end{aligned}
+Where $$\mathcal{HC}\left(s\right)$$ is the half-cauchy distribution centered around 0 with scale parameter $$s$$.
+$$  
 
 ## Implementations in `emcee` and `PyMC3`
+The two MCMC software packages we used to carry out the posterior sampling, `emcee` and `PyMC3`, are both implemented in Python3. There are clear advantages to both (from speed to diagnostic capability) which will become more clear when we view our results. First, let's read in and configure the data, which I have mad available [here](https://github.com/bmanubay/bayes_parameter_estimation_for_blog/blob/master/liquid_mass_dens_vs_T_P.csv), that we'll use for all of our different sampling methods.
+
+~~~python
+import pandas as pd
+
+#Read and configure data
+df = pd.read_csv("liquid_mass_dens_vs_T_P.csv")
+
+df["Rho, g/cm3"] = df["Rho, g/cm3 * 10^4"]/10000.
+df = df[["Temp, F","Press, psia", "Rho, g/cm3"]]
+
+T = df["Temp, F"].values
+P = df["Press, psia"].values
+y = df["Rho, g/cm3"].values
+~~~
+
+Now, we can set up the uninformative prior model in `emcee`.
+~~~python
+# Define our probability models
+# We define our probability models as their natural log analogs for numerical robustness
+# Key here, models will pull T & P directly from the evidence objects, so we don't attempt to estimate those as a parameter
+# The theta model will be run variationally only including
+#ρ=ρ(T0,P0)*(1−α(T−T0)+β(P−P0))
+
+def rho(theta,T,P):
+    #forward data model for rho as a function of T, P and parameters (theta) 
+    rho_T0_P0,alpha,T0,beta,P0,eps = theta
+    return np.array(rho_T0_P0*(1 - alpha*(T-T0) + beta*(P-P0)))
+
+def lnprior(theta):
+    #model defining the prior contribution to our log posterior density
+    rho_T0_P0,alpha,T0,beta,P0,eps = theta
+    if 0.6 < rho_T0_P0 < 0.9 and 0. < alpha < 1. and 40 < T0 < 390 and 0. < beta < 1. and 2000. < P0 < 27000. and 0. < eps < 0.05:
+        return 0.0
+    return -np.inf
+
+def log_like(theta,T,P,y):
+    #model defining our likelihood contribution (given T, P, y pairs --> i.e. evidence) to our log posterior density
+    rho_T0_P0,alpha,T0,beta,P0,eps = theta
+    # Product of all lnlikelihoods at given theta for ALL evidence (ALL T and P)
+    loglike = []
+    for i in range(len(y)):
+        loglike.append(-(1./2.)*np.log(2.*np.pi) - (1./2.)*np.log(eps**2) - (1./(2.*eps**2))*(y[i]-rho(theta,T[i],P[i]))**2)
+    return np.array(loglike)
+
+def lnprob_blobs(theta, T, P, y):
+    #model defining how to calculate our log posterior density from prior and likelihood
+    #returns the posterior density, prior and likelihood calculation for every sampling step
+    rho_T0_P0,alpha,T0,beta,P0,eps = theta
+    prior = lnprior(theta)
+    like_vect = log_like(theta, T, P, y)
+    return like + prior, prior, like_vect
+~~~
 
 ## Analysis
 
