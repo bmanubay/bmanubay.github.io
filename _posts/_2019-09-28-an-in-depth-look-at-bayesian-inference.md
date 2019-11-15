@@ -185,7 +185,8 @@ def lnprob_blobs(theta, T, P, y):
     rho_T0_P0,alpha,T0,beta,P0,eps = theta
     prior = lnprior(theta)
     like_vect = log_like(theta, T, P, y)
-    return like + prior, prior, like_vect
+    like = np.sum(like_vect)
+    return like + prior, prior, like
 ~~~
 Now that we have all the backends set up to sample with `emcee`, the last major choice we have to make is "how and where to initialize the sampling?" There are many potential options. We could set start points randomly (which is a nice, robust choice to test chain convergence), we could use some relatively inexpensive [variational inference](https://en.wikipedia.org/wiki/Variational_Bayesian_methods) technique to give a pretty good estimate of where the chain will end up and thus just end up sampling our high probability areas using MCMC. Given that this probability space is relatively simple (smooth, not apparently multimodal or disjointed, etc.), I chose to use the [maximum a posteriori (or MAP)](https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation) as a starting point. In general, this is not wise. The MAP (which is also the mode of the posterior) [does not always look like a typical sample from the distribution](https://www.inference.vc/high-dimensional-gaussian-distributions-are-soap-bubble/) and can be a very poor starting point. Additionally, the gradient of the posterior at the MAP is ZERO by definition ([which can be a big problem for gradient-enhanced sampling methods like those implemented by default in `PyMC3`](https://docs.pymc.io/api/inference.html#module-pymc3.sampling)) However, in low dimensional problems (like ours) it's usually okay. We can initialize our sampling with the following snippets.
 ~~~python
@@ -216,7 +217,39 @@ with Pool() as pool:
     # Now we'll sample for max_n steps
     sampler.run_mcmc(pos0, max_n, progress=True)
 ~~~
+One of the great things about `emcee` is how lightweight and speedy it is. A simulation this size only take about 45 minutes to an hour. We can set up the weakly informative backend similarly.
+~~~python
+def rho(theta,T,P):
+    rho_T0_P0,alpha,T0,beta,P0,eps = theta
+    return rho_T0_P0*(1 - alpha*(T-T0) + beta*(P-P0))
 
+def lnprior(theta):
+    rho_T0_P0,alpha,T0,beta,P0,eps = theta
+
+    rho0_mu_hyper = sp.stats.norm.rvs(loc=0.75, scale=1.e-1)
+    rho0_std_hyper = sp.stats.halfcauchy.rvs(loc=0., scale=1.e-1)
+    
+    alpha_mu_hyper = sp.stats.norm.rvs(loc=0.005, scale=1.e-3)
+    alpha_std_hyper = sp.stats.halfcauchy.rvs(loc=0., scale=1.e-3)
+    
+    return sp.stats.norm.logpdf(rho_T0_P0,loc=rho0_mu_hyper,scale=rho0_std_hyper)+sp.stats.norm.logpdf(alpha,loc=alpha_mu_hyper,scale=alpha_std_hyper)+sp.stats.norm.logpdf(T0,loc=200.,scale=100.)+sp.stats.norm.logpdf(beta,loc=0.,scale=1.e-5)+sp.stats.norm.logpdf(P0,loc=14000.,scale=6.e3)+sp.stats.halfcauchy.logpdf(eps,loc=0.,scale=0.05)
+    
+def log_like(theta,T,P,y):
+    rho_T0_P0,alpha,T0,beta,P0,eps = theta
+    # Product of all lnlikelihoods at given theta for ALL evidence (ALL T and P)
+    loglike = []
+    for i in range(len(y)):
+        loglike.append(-(1./2.)*np.log(2.*np.pi) - (1./2.)*np.log(eps**2) - (1./(2.*eps**2))*(y[i]-rho(theta,T[i],P[i]))**2)
+    return np.array(loglike)
+
+def lnprob_blobs(theta, T, P, y):
+    rho_T0_P0,alpha,T0,beta,P0,eps = theta
+    prior = lnprior(theta)
+    like_vect = log_like(theta, T, P, y)
+    like = np.sum(like_vect)
+    return like + prior, prior, like
+~~~
+Again, the only thing really changing is the prior model. The MAP estimate and sampling block are set up identically, expect the name you choose for your HDF5 save file (if you choose to).
 ## Analysis
 
 [//]: # (Do a quick parameterization in scipy or sklearn for comparison to the Bayesian fits)
