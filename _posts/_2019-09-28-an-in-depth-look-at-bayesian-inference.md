@@ -112,7 +112,7 @@ $$
 The two MCMC software packages we used to carry out the posterior sampling, `emcee` and `PyMC3`, are both implemented in Python3. There are clear advantages to both (from speed to diagnostic capability) which will become more clear when we view our results. First, let's import all of our relevant packages and read in and configure the data, which I have mad available [here](https://github.com/bmanubay/bayes_parameter_estimation_for_blog/blob/master/liquid_mass_dens_vs_T_P.csv), that we'll use for all of our different sampling methods.
 
 ~~~python
-%matplotlib notebook #ignore this is you're not using a Jupyter Notebook
+%matplotlib notebook #ignore this is you're not using a Jupyter Notebook. This sets the rendering backend.
 
 import pandas as pd
 import numpy as np
@@ -150,7 +150,6 @@ T = df["Temp, F"].values
 P = df["Press, psia"].values
 y = df["Rho, g/cm3"].values
 ~~~
-
 Now, we can set up the uninformative prior model in `emcee`.
 ~~~python
 # Define our probability models
@@ -187,6 +186,35 @@ def lnprob_blobs(theta, T, P, y):
     prior = lnprior(theta)
     like_vect = log_like(theta, T, P, y)
     return like + prior, prior, like_vect
+~~~
+Now that we have all the backends set up to sample with `emcee`, the last major choice we have to make is "how and where to initialize the sampling?" There are many potential options. We could set start points randomly (which is a nice, robust choice to test chain convergence), we could use some relatively inexpensive [variational inference](https://en.wikipedia.org/wiki/Variational_Bayesian_methods) technique to give a pretty good estimate of where the chain will end up and thus just end up sampling our high probability areas using MCMC. Given that this probability space is relatively simple (smooth, not apparently multimodal or disjointed, etc.), I chose to use the [maximum a posteriori (or MAP)](https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation) as a starting point. In general, this is not wise. The MAP (which is also the mode of the posterior) [does not always look like a typical sample from the distribution](https://www.inference.vc/high-dimensional-gaussian-distributions-are-soap-bubble/) and can be a very poor starting point. Additionally, the gradient of the posterior at the MAP is ZERO by definition ([which can be a big problem for gradient-enhanced sampling methods like those implemented by default in `PyMC3`](https://docs.pymc.io/api/inference.html#module-pymc3.sampling)) However, in low dimensional problems (like ours) it's usually okay. We can initialize our sampling with the following snippets.
+~~~python
+#get MAP estimate
+np.random.seed(45)
+nll = lambda *args: np.sum(-log_like(*args))
+initial = np.array([0.7,0.01,50,0.01,3000.,0.01]) + 0.1*np.random.randn(6)
+soln = minimize(nll, initial, bounds=((0.6,0.9),(0,1),(40,390),(0,1),(2000,27000),(0,0.05)),args=(T, P, y))
+rho_T0_P0_ml, alpha_ml, T0_ml, beta_ml, P0_ml, eps_ml = soln.x
+~~~
+~~~python
+pos0 = soln.x + 1e-4*np.random.randn(30, 6)
+nwalkers, ndim = pos0.shape
+
+max_n = 30000 #we'll draw 30000 samples from 30 iid simulations
+
+# If you want to save the samples like I did, this is how!
+# Set up the backend
+# Don't forget to clear it in case the file already exists
+filename = "emcee_UI_priors_trace.h5"
+backend = mc.backends.HDFBackend(filename)
+backend.reset(nwalkers, ndim)
+dtype = [("log_prior", float), ("log_like", float)] #emcee blob dtypes
+
+with Pool() as pool:
+    sampler = mc.EnsembleSampler(nwalkers, ndim, lnprob_blobs, args=(T,P,y), pool=pool, backend=backend, blobs_dtype=dtype)
+    print("Begin production")
+    # Now we'll sample for max_n steps
+    sampler.run_mcmc(pos0, max_n, progress=True)
 ~~~
 
 ## Analysis
