@@ -109,11 +109,37 @@ Where $$\mathcal{HC}\left(s\right)$$ is the half-cauchy distribution centered ar
 $$  
 
 ## Implementations in `emcee` and `PyMC3`
-The two MCMC software packages we used to carry out the posterior sampling, `emcee` and `PyMC3`, are both implemented in Python3. There are clear advantages to both (from speed to diagnostic capability) which will become more clear when we view our results. First, let's read in and configure the data, which I have mad available [here](https://github.com/bmanubay/bayes_parameter_estimation_for_blog/blob/master/liquid_mass_dens_vs_T_P.csv), that we'll use for all of our different sampling methods.
+The two MCMC software packages we used to carry out the posterior sampling, `emcee` and `PyMC3`, are both implemented in Python3. There are clear advantages to both (from speed to diagnostic capability) which will become more clear when we view our results. First, let's import all of our relevant packages and read in and configure the data, which I have mad available [here](https://github.com/bmanubay/bayes_parameter_estimation_for_blog/blob/master/liquid_mass_dens_vs_T_P.csv), that we'll use for all of our different sampling methods.
 
 ~~~python
-import pandas as pd
+%matplotlib notebook #ignore this is you're not using a Jupyter Notebook
 
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import minimize
+import scipy as sp
+import corner
+import arviz as az
+from IPython.display import display, Math
+from multiprocessing import Pool
+
+import seaborn as sns
+import time
+
+import emcee as mc
+import pymc3 as pm
+
+import pickle
+import h5py
+
+sns.set()
+colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+%config InlineBackend.figure_format = 'svg'
+np.random.seed(111)
+~~~
+
+~~~python
 #Read and configure data
 df = pd.read_csv("liquid_mass_dens_vs_T_P.csv")
 
