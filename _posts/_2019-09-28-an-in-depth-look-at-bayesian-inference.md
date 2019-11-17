@@ -311,14 +311,10 @@ with model:
 ~~~
 As the developers claim, NUTS has very efficient sampling such that the convergence is very fast and nearly all of the samples are uncorrelated. However, sampling can be VERY slow if the sampler gets stuck due to low gradient calculations. The above simulation took about 24 hrs to complete. However, the results were very robust, the chains were converged, there were very few divergent samples and there were a high number of uncorrelated samples. Now, that we have all of the machinery out of the way, let's look at the results!
 ## Analysis
-[//]: # (![emcee UI traces](/assets/img/blog3/emcee_UI_KDE_and_traces.png))  
-[//]: # (![emcee Weak HA traces](/assets/img/blog3/emcee_weak_KDE_and_traces.png)  )
-[//]: # (![PyMC3 UI traces](/assets/img/blog3/PyMC3_UI_KDE_and_traces.png) )
-[//]: # (![PyMC3 Weak HA traces](/assets/img/blog3/PyMC3_weak_KDE_and_traces.png))
 
-| ![emcee UI traces](/assets/img/blog3/emcee_UI_KDE_and_traces.png)        |     ![emcee Weak HA traces](/assets/img/blog3/emcee_weak_KDE_and_traces.png)       |
+|![emcee UI traces](/assets/img/blog3/emcee_UI_KDE_and_traces.png)|![emcee Weak HA traces](/assets/img/blog3/emcee_weak_KDE_and_traces.png)|
 | ------------- |:-------------:|
-|  ![PyMC3 UI traces](/assets/img/blog3/PyMC3_UI_KDE_and_traces.png)     | ![PyMC3 Weak HA traces](/assets/img/blog3/PyMC3_weak_KDE_and_traces.png) |
+|![PyMC3 UI traces](/assets/img/blog3/PyMC3_UI_KDE_and_traces.png)|![PyMC3 Weak HA traces](/assets/img/blog3/PyMC3_weak_KDE_and_traces.png)|
 
 
 
