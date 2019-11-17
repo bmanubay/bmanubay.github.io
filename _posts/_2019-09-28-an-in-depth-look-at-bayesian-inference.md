@@ -321,16 +321,19 @@ As the developers claim, NUTS has very efficient sampling such that the converge
 |![emcee UI traces](/assets/img/blog3/emcee_UI_KDE_and_traces.png)|![emcee Weak HA traces](/assets/img/blog3/emcee_weak_KDE_and_traces.png)|
 | ------------- |:-------------:|
 |![PyMC3 UI traces](/assets/img/blog3/PyMC3_UI_KDE_and_traces.png)|![PyMC3 Weak HA traces](/assets/img/blog3/PyMC3_weak_KDE_and_traces.png)|
+
 *Fig 1. A trace and 1-D marginal posterior comparison of each software and model tested. For each, we show the traces for all 6 variables as well as a KDE (kernel density estimate) for each marginal posterior.*
 
 |![emcee UI ppc plot](/assets/img/blog3/emcee_UI_prior_PPCplot.png)|![emcee Weak HA ppc plot](/assets/img/blog3/emcee_weak_prior_PPCplot.png)|
 | ------------- |:-------------:|
 |![PyMC3 UI ppc plot](/assets/img/blog3/PyMC3_UI_prior_PPCplot.png)|![PyMC3 Weak HA ppc plot](/assets/img/blog3/PyMC3_HA_model_PPCplot.png)|
+
 *Fig 2. The posterior predictive checks for each model tested. For each plot, 1000 posterior predicitve samples were drawn and plotted as KDEs. A KDE of the mean of those 500 samples and a KDE of the evidence were also plotted.*
 
 |![emcee UI actual vs predicted plot](/assets/img/blog3/emcee_UI_prior_actualvspredictedplot.png)|![emcee Weak HA actual vs predicted plot](/assets/img/blog3/emcee_weak_HA_prior_actualvspredictedplot.png)|
 | ------------- |:-------------:|
 |![PyMC3 UI actual vs predicted plot](/assets/img/blog3/PyMC3_UI_prior_actualvspredictedplot.png)|![PyMC3 Weak HA actual vs predicted plot](/assets/img/blog3/PyMC3_weak_HA_actualvspredictedplot.png)|
+
 *Fig 3. 1000 posterior predictive samples were randomly drawn from each of the four model runs. They were then plotted vs the evidence values to get a check of how well the method predicts our data. It's worth noting that each `emcee` model has pretty significant divergent sampling.*
 
 
