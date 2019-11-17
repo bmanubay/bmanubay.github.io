@@ -109,8 +109,7 @@ Where $$\mathcal{HC}\left(s\right)$$ is the half-cauchy distribution centered ar
 $$  
 
 ## Implementations in `emcee` and `PyMC3`
-The two MCMC software packages we used to carry out the posterior sampling, `emcee` and `PyMC3`, are both implemented in Python3. There are clear advantages to both (from speed to diagnostic capability) which will become more clear when we view our results. First, let's import all of our relevant packages and read in and configure the data, which I have mad available [here](https://github.com/bmanubay/bayes_parameter_estimation_for_blog/blob/master/liquid_mass_dens_vs_T_P.csv), that we'll use for all of our different sampling methods.
-
+The two MCMC software packages we used to carry out the posterior sampling, `emcee` and `PyMC3`, are both implemented in Python3. There are clear advantages to both (from speed to diagnostic capability) which will become more clear when we view our results. First, let's import all of our relevant packages that we'll use for our different sampling methods.
 ~~~python
 %matplotlib notebook #ignore this is you're not using a Jupyter Notebook. This sets the rendering backend.
 
@@ -138,7 +137,7 @@ colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 %config InlineBackend.figure_format = 'svg'
 np.random.seed(111)
 ~~~
-
+Now we read in and configure the mass density versus temperature and pressure data, which I have mad available [here](https://github.com/bmanubay/bayes_parameter_estimation_for_blog/blob/master/liquid_mass_dens_vs_T_P.csv).
 ~~~python
 #Read and configure data
 df = pd.read_csv("liquid_mass_dens_vs_T_P.csv")
@@ -150,7 +149,7 @@ T = df["Temp, F"].values
 P = df["Press, psia"].values
 y = df["Rho, g/cm3"].values
 ~~~
-Now, we can set up the uninformative prior model in `emcee`.
+Now, we can set up the probability backend models in `emcee`. 
 ~~~python
 # Define our probability models
 # We define our probability models as their natural log analogs for numerical robustness
@@ -188,7 +187,7 @@ def lnprob_blobs(theta, T, P, y):
     like = np.sum(like_vect)
     return like + prior, prior, like
 ~~~
-Now that we have all the backends set up to sample with `emcee`, the last major choice we have to make is "how and where to initialize the sampling?" There are many potential options. We could set start points randomly (which is a nice, robust choice to test chain convergence), we could use some relatively inexpensive [variational inference](https://en.wikipedia.org/wiki/Variational_Bayesian_methods) technique to give a pretty good estimate of where the chain will end up and thus just end up sampling our high probability areas using MCMC. Given that this probability space is relatively simple (smooth, not apparently multimodal or disjointed, etc.), I chose to use the [maximum a posteriori (or MAP)](https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation) as a starting point. In general, this is not wise. The MAP (which is also the mode of the posterior) [does not always look like a typical sample from the distribution](https://www.inference.vc/high-dimensional-gaussian-distributions-are-soap-bubble/) and can be a very poor starting point. Additionally, the gradient of the posterior at the MAP is ZERO by definition ([which can be a big problem for gradient-enhanced sampling methods like those implemented by default in `PyMC3`](https://docs.pymc.io/api/inference.html#module-pymc3.sampling)) However, in low dimensional problems (like ours) it's usually okay. We can initialize our sampling with the following snippets.
+Note that we've defined all of our probability models as their natural log analogs. This helps with numerical robustness because instead of multiplying iid events on the interval $$\[0,1\]$$ (which quickly go to zero), we add the log analogs on the interval $$\[-\infty,0\]$$. Now that we have all the backends set up to sample with `emcee`, the last major choice we have to make is "how and where to initialize the sampling?" There are many potential options. We could set start points randomly (which is a nice, robust choice to test chain convergence), we could use some relatively inexpensive [variational inference](https://en.wikipedia.org/wiki/Variational_Bayesian_methods) technique to give a pretty good estimate of where the chain will end up and thus just end up sampling our high probability areas using MCMC. Given that this probability space is relatively simple (smooth, not apparently multimodal or disjointed, etc.), I chose to use the [maximum a posteriori (or MAP)](https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation) as a starting point. In general, this is not wise. The MAP (which is also the mode of the posterior) [does not always look like a typical sample from the distribution](https://www.inference.vc/high-dimensional-gaussian-distributions-are-soap-bubble/) and can be a very poor starting point. Additionally, the gradient of the posterior at the MAP is ZERO by definition ([which can be a big problem for gradient-enhanced sampling methods like those implemented by default in `PyMC3`](https://docs.pymc.io/api/inference.html#module-pymc3.sampling)) However, in low dimensional problems (like ours) it's usually okay. We can initialize our sampling with the following snippets.
 ~~~python
 #get MAP estimate
 np.random.seed(45)
@@ -211,7 +210,7 @@ backend = mc.backends.HDFBackend(filename)
 backend.reset(nwalkers, ndim)
 dtype = [("log_prior", float), ("log_like", float)] #emcee blob dtypes
 
-with Pool() as pool:
+with Pool() as pool: #I'm running my simulation on multiple cores using the Multiprocessing module
     sampler = mc.EnsembleSampler(nwalkers, ndim, lnprob_blobs, args=(T,P,y), pool=pool, backend=backend, blobs_dtype=dtype)
     print("Begin production")
     # Now we'll sample for max_n steps
@@ -249,7 +248,68 @@ def lnprob_blobs(theta, T, P, y):
     like = np.sum(like_vect)
     return like + prior, prior, like
 ~~~
-Again, the only thing really changing is the prior model. The MAP estimate and sampling block are set up identically, expect the name you choose for your HDF5 save file (if you choose to).
+Again, the only thing that changed is the prior model. The MAP estimate and sampling block are set up identically, except the name you choose for your HDF5 save file (if you choose to). The speed of this simulation is not noticeably affected by the change in prior model.
+
+If we want to set up the sampler with `PyMC3` we can follow a similar workflow. For the uninformative prior model, the probability backends are set up with the following block.
+~~~python
+#Now let's try with PyMC3
+#The data can stay formatted the same way
+#Also, wow, look how clean the model and sampling set up is
+with pm.Model() as model:
+    
+    rho0 = pm.Uniform('rho0', lower=0.6, upper=0.9)
+    alpha = pm.Uniform('alpha', lower=0., upper=1.)
+    T0 = pm.Uniform('T0', lower=40., upper=390.)
+    beta = pm.Uniform('beta', lower=0., upper=1.)
+    P0 = pm.Uniform('P0', lower=2000., upper=27000.)
+    eps = pm.Uniform('eps', lower=0., upper=1.)
+     
+    rho = rho0*(1-alpha*(T-T0)+beta*(P-P0))
+    
+    # Likelihood (sampling distribution) of observations
+    rho_obs = pm.Normal('rho_obs', mu=rho, sd=eps, observed=y)
+~~~
+Setup with `PyMC3` is super clean and easy. All of the computation and probability backends currently rely on `theano` (which will be switching hands to the `tensorflow` probability people with `PyMC4`). Setting up the MCMC sampling machinery is similarly very easy.
+~~~python
+with model:   
+    #We'll just use vanilla MH for ease, we can explore NUTS with a better model later 
+    step = pm.Metropolis()
+    map_estimate = pm.find_MAP(model=model)
+    prior = pm.sample_prior_predictive()
+    #Draw 30000 posterior samples from 30 chains
+    trace = pm.sample(draws=30000, chains=30, cores=4, step=step, start=map_estimate)
+    posterior_predictive = pm.sample_ppc(trace)
+~~~
+There are a ton of bells and whistles for `PyMC3`'s sampling machinery. Choice of step method, initialization method, step adapatation and much more can be user controlled. Additionally, and this will become a big deal in the next section, `PyMC3`'s sampling diagnostics are REALLY GOOD. It will warn you of divergent samples, if the chain is too short for good statistics, if the samples are highly correlated and further sampling should be done. It's great! Also, saving the outputs is as easy as using `Python`'s built-in `pickle` method (which gives surprising errors in `emcee`). An unfortunate drawback to `PyMC3` is the speed though. It's bulky and is best optimized on a HPC node. The simulation above took around 10 hrs on my four core CPU. And even worse it was with vanilla Metropolis-Hastings, so the efficiency of drawing uncorrelated samples is very low and convergence is slow. Defining the new probability backends for the weakly informative hierarchical prior model can be done with the following code block.
+~~~python
+with pm.Model() as model:
+    mu_rho0 = pm.Normal('mu_rho0', 0.75, sd=1.e-1)
+    sd_rho0 = pm.HalfCauchy('sd_rho0', 1.e-1)
+    rho0 = pm.Normal('rho0', mu=mu_rho0, sd=sd_rho0)
+    
+    mu_alpha = pm.Normal('mu_alpha', 0.005, sd=1.e-3)
+    sd_alpha = pm.HalfCauchy('sd_alpha', 1.e-3)
+    alpha = pm.Normal('alpha', mu=mu_alpha, sd=sd_alpha)
+    
+    T0 = pm.Normal('T0', mu=200., sd=1.e2)    
+    beta = pm.Normal('beta', mu=0., sd=1.e-5)    
+    P0 = pm.Normal('P0', mu=14000., sd=6.e3)
+    eps = pm.HalfCauchy('eps', 0.05)
+     
+    rho = rho0*(1-alpha*(T-T0)+beta*(P-P0))
+    
+    # Likelihood (sampling distribution) of observations
+    rho_obs = pm.Normal('rho_obs', mu=rho, sd=eps, observed=y)
+~~~
+For this model, I used `PyMC3`'s flagship No U-Turn Sampler (or NUTS). It's an extension of [Hamiltonian Monte Carlo that requires little to no hand-tuning to sample efficiently](https://arxiv.org/abs/1111.4246). Below is the setup for the sampling block.
+~~~python
+with model:    
+    #Little higher product sampler
+    trace_prod = pm.sample(draws=3000,chains=10,cores=4,target_accept=0.9,init='advi+adapt_diag') #start sampler with variational inference estimate
+    prior_prod = pm.sample_prior_predictive()
+    posterior_predictive_prod = pm.sample_ppc(trace_prod)  
+~~~
+As the developers claim, NUTS has very efficient sampling such that the convergence is very fast and nearly all of the samples are uncorrelated. However, sampling can be VERY slow if the sampler gets stuck due to low gradient calculations. The above simulation took about 24 hrs to complete. However, the results were very robust, the chains were converged, there were very few divergent samples and there were a high number of uncorrelated samples. Now, that we have all of the machinery out of the way, let's look at the results!
 ## Analysis
 
 [//]: # (Do a quick parameterization in scipy or sklearn for comparison to the Bayesian fits)
