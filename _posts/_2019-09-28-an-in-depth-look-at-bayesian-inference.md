@@ -315,6 +315,12 @@ As the developers claim, NUTS has very efficient sampling such that the converge
 |![emcee UI traces](/assets/img/blog3/emcee_UI_KDE_and_traces.png)|![emcee Weak HA traces](/assets/img/blog3/emcee_weak_KDE_and_traces.png)|
 | ------------- |:-------------:|
 |![PyMC3 UI traces](/assets/img/blog3/PyMC3_UI_KDE_and_traces.png)|![PyMC3 Weak HA traces](/assets/img/blog3/PyMC3_weak_KDE_and_traces.png)|
+*Fig 1. A trace and 1-D marginal posterior comparison of each software and model tested. For each, we show the traces for all 6 variables as well as a KDE estimate for each marginal posterior.*
+
+|![emcee UI ppc plot](/assets/img/blog3/emcee_UI_KDE_and_traces.png)|![emcee Weak HA ppc plot](/assets/img/blog3/emcee_weak_KDE_and_traces.png)|
+| ------------- |:-------------:|
+|![PyMC3 UI ppc plot](/assets/img/blog3/PyMC3_UI_KDE_and_traces.png)|![PyMC3 Weak HA ppc plot](/assets/img/blog3/PyMC3_weak_KDE_and_traces.png)|
+*Fig 1. A trace and 1-D marginal posterior comparison of each software and model tested. For each, we show the traces for all 6 variables as well as a KDE estimate for each marginal posterior.*
 
 
 
