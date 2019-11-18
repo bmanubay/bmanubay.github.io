@@ -318,29 +318,30 @@ with model:
 As the developers claim, NUTS has very efficient sampling such that the convergence is very fast and nearly all of the samples are uncorrelated. However, sampling can be VERY slow if the sampler gets stuck due to low gradient calculations. The above simulation took about 24 hrs to complete. However, the results were very robust, the chains were converged, there were very few divergent samples and there were a high number of uncorrelated samples. Now, that we have all of the machinery out of the way, let's look at the results!
 ## Analysis
 
+|![emcee UI marg posterior plot](/assets/img/blog3/emcee_UI_cornerplot.png)|![emcee Weak HA marg posterior plot](/assets/img/blog3/emcee_weak_cornerplot.png)|
+| ------------- |:-------------:|
+|![PyMC3 UI marg posterior plot](/assets/img/blog3/PyMC3_UI_cornerplot.png)|![PyMC3 Weak HA marg posterior plot](/assets/img/blog3/PyMC3_weak_cornerplot.png)|
+
+*Fig 1. Cornerplots were made to visually analyze the 1D and 2D marginal posterior distributions for each of the 4 models*
+
 |![emcee UI traces](/assets/img/blog3/emcee_UI_KDE_and_traces.png)|![emcee Weak HA traces](/assets/img/blog3/emcee_weak_KDE_and_traces.png)|
 | ------------- |:-------------:|
 |![PyMC3 UI traces](/assets/img/blog3/PyMC3_UI_KDE_and_traces.png)|![PyMC3 Weak HA traces](/assets/img/blog3/PyMC3_weak_KDE_and_traces.png)|
 
-*Fig 1. A trace and 1-D marginal posterior comparison of each software and model tested. For each, we show the traces for all 6 variables as well as a KDE (kernel density estimate) for each marginal posterior.*
+*Fig 2. A trace and 1-D marginal posterior comparison of each software and model tested. For each, we show the traces for all 6 variables as well as a KDE (kernel density estimate) for each marginal posterior.*
 
 |![emcee UI ppc plot](/assets/img/blog3/emcee_UI_prior_PPCplot.png)|![emcee Weak HA ppc plot](/assets/img/blog3/emcee_weak_prior_PPCplot.png)|
 | ------------- |:-------------:|
 |![PyMC3 UI ppc plot](/assets/img/blog3/PyMC3_UI_prior_PPCplot.png)|![PyMC3 Weak HA ppc plot](/assets/img/blog3/PyMC3_HA_model_PPCplot.png)|
 
-*Fig 2. The posterior predictive checks for each model tested. For each plot, 1000 posterior predicitve samples were drawn and plotted as KDEs. A KDE of the mean of those 500 samples and a KDE of the evidence were also plotted.*
+*Fig 3. The posterior predictive checks for each model tested. For each plot, 1000 posterior predicitve samples were drawn and plotted as KDEs. A KDE of the mean of those 500 samples and a KDE of the evidence were also plotted.*
 
 |![emcee UI actual vs predicted plot](/assets/img/blog3/emcee_UI_prior_actualvspredictedplot.png)|![emcee Weak HA actual vs predicted plot](/assets/img/blog3/emcee_weak_HA_prior_actualvspredictedplot.png)|
 | ------------- |:-------------:|
 |![PyMC3 UI actual vs predicted plot](/assets/img/blog3/PyMC3_UI_prior_actualvspredictedplot.png)|![PyMC3 Weak HA actual vs predicted plot](/assets/img/blog3/PyMC3_weak_HA_prior_actualvspredictedplot.png)|
 
-*Fig 3. 1000 posterior predictive samples were randomly drawn from each of the four model runs. They were then plotted vs the evidence values to get a check of how well the method predicts our data. It's worth noting that each `emcee` model has pretty significant divergent sampling.*
+*Fig 4. 1000 posterior predictive samples were randomly drawn from each of the four model runs. They were then plotted vs the evidence values to get a check of how well the method predicts our data. It's worth noting that each `emcee` model has pretty significant divergent sampling.*
 
-|![emcee UI actual vs predicted plot](/assets/img/blog3/emcee_UI_cornerplot.png)|![emcee Weak HA actual vs predicted plot](/assets/img/blog3/emcee_weak_cornerplot.png)|
-| ------------- |:-------------:|
-|![PyMC3 UI actual vs predicted plot](/assets/img/blog3/PyMC3_UI_cornerplot.png)|![PyMC3 Weak HA actual vs predicted plot](/assets/img/blog3/PyMC3_weak_cornerplot.png)|
-
-*Fig 3. 1000 posterior predictive samples were randomly drawn from each of the four model runs. They were then plotted vs the evidence values to get a check of how well the method predicts our data. It's worth noting that each `emcee` model has pretty significant divergent sampling.*
 
 
 [//]: # (Do a quick parameterization in scipy or sklearn for comparison to the Bayesian fits)
