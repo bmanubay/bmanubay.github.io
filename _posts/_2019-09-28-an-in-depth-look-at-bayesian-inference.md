@@ -336,6 +336,11 @@ As the developers claim, NUTS has very efficient sampling such that the converge
 
 *Fig 3. 1000 posterior predictive samples were randomly drawn from each of the four model runs. They were then plotted vs the evidence values to get a check of how well the method predicts our data. It's worth noting that each `emcee` model has pretty significant divergent sampling.*
 
+|![emcee UI actual vs predicted plot](/assets/img/blog3/emcee_UI_cornerplot.png)|![emcee Weak HA actual vs predicted plot](/assets/img/blog3/emcee_weak_cornerplot.png)|
+| ------------- |:-------------:|
+|![PyMC3 UI actual vs predicted plot](/assets/img/blog3/PyMC3_UI_cornerplot.png)|![PyMC3 Weak HA actual vs predicted plot](/assets/img/blog3/PyMC3_weak_cornerplot.png)|
+
+*Fig 3. 1000 posterior predictive samples were randomly drawn from each of the four model runs. They were then plotted vs the evidence values to get a check of how well the method predicts our data. It's worth noting that each `emcee` model has pretty significant divergent sampling.*
 
 
 [//]: # (Do a quick parameterization in scipy or sklearn for comparison to the Bayesian fits)
