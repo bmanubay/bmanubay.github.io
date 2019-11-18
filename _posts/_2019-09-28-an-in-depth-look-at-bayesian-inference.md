@@ -160,7 +160,7 @@ Now, we can set up the probability backend models in `emcee`.
 def rho(theta,T,P):
     #forward data model for rho as a function of T, P and parameters (theta) 
     rho_T0_P0,alpha,T0,beta,P0,eps = theta
-    return np.array(rho_T0_P0*(1 - alpha*(T-T0) + beta*(P-P0)))
+    return rho_T0_P0*(1 - alpha*(T-T0) + beta*(P-P0))
 
 def lnprior(theta):
     #model defining the prior contribution to our log posterior density
@@ -175,17 +175,20 @@ def log_like(theta,T,P,y):
     # Product of all lnlikelihoods at given theta for ALL evidence (ALL T and P)
     loglike = []
     for i in range(len(y)):
-        loglike.append(-(1./2.)*np.log(2.*np.pi) - (1./2.)*np.log(eps**2) - (1./(2.*eps**2))*(y[i]-rho(theta,T[i],P[i]))**2)
+        loglike.append(-(1./2.)*np.log(2.*np.pi*eps**2) - (1./(2.*eps**2))*(y[i]-rho(theta,T[i],P[i]))**2)
     return np.array(loglike)
 
 def lnprob_blobs(theta, T, P, y):
     #model defining how to calculate our log posterior density from prior and likelihood
-    #returns the posterior density, prior and likelihood calculation for every sampling step
+    #returns the posterior density, prior, likelihood and posterior predictive calculation for every sampling step
     rho_T0_P0,alpha,T0,beta,P0,eps = theta
     prior = lnprior(theta)
     like_vect = log_like(theta, T, P, y)
     like = np.sum(like_vect)
-    return like + prior, prior, like
+    pred = []
+    for i in range(len(y)):
+        pred.append(rho(theta,T[i],P[i]))
+    return like + prior, prior, like, pred
 ~~~
 Note that we've defined all of our probability models as their natural log analogs. This helps with numerical robustness because instead of multiplying iid events on the interval $$\[0,1\]$$ (which quickly go to zero), we add the log analogs on the interval $$\[-\infty,0\]$$. Now that we have all the backends set up to sample with `emcee`, the last major choice we have to make is "how and where to initialize the sampling?" There are many potential options. We could set start points randomly (which is a nice, robust choice to test chain convergence), we could use some relatively inexpensive [variational inference](https://en.wikipedia.org/wiki/Variational_Bayesian_methods) technique to give a pretty good estimate of where the chain will end up and thus just end up sampling our high probability areas using MCMC. Given that this probability space is relatively simple (smooth, not apparently multimodal or disjointed, etc.), I chose to use the [maximum a posteriori (or MAP)](https://en.wikipedia.org/wiki/Maximum_a_posteriori_estimation) as a starting point. In general, this is not wise. The MAP (which is also the mode of the posterior) [does not always look like a typical sample from the distribution](https://www.inference.vc/high-dimensional-gaussian-distributions-are-soap-bubble/) and can be a very poor starting point. Additionally, the gradient of the posterior at the MAP is ZERO by definition ([which can be a big problem for gradient-enhanced sampling methods like those implemented by default in `PyMC3`](https://docs.pymc.io/api/inference.html#module-pymc3.sampling)) However, in low dimensional problems (like ours) it's usually okay. We can initialize our sampling with the following snippets.
 ~~~python
@@ -238,7 +241,7 @@ def log_like(theta,T,P,y):
     # Product of all lnlikelihoods at given theta for ALL evidence (ALL T and P)
     loglike = []
     for i in range(len(y)):
-        loglike.append(-(1./2.)*np.log(2.*np.pi) - (1./2.)*np.log(eps**2) - (1./(2.*eps**2))*(y[i]-rho(theta,T[i],P[i]))**2)
+        loglike.append(-(1./2.)*np.log(2.*np.pi*eps**2) - (1./(2.*eps**2))*(y[i]-rho(theta,T[i],P[i]))**2)
     return np.array(loglike)
 
 def lnprob_blobs(theta, T, P, y):
@@ -246,7 +249,10 @@ def lnprob_blobs(theta, T, P, y):
     prior = lnprior(theta)
     like_vect = log_like(theta, T, P, y)
     like = np.sum(like_vect)
-    return like + prior, prior, like
+    pred = []
+    for i in range(len(y)):
+        pred.append(rho(theta,T[i],P[i]))
+    return like + prior, prior, like, pred
 ~~~
 Again, the only thing that changed is the prior model. The MAP estimate and sampling block are set up identically, except the name you choose for your HDF5 save file (if you choose to). The speed of this simulation is not noticeably affected by the change in prior model.
 
@@ -315,12 +321,20 @@ As the developers claim, NUTS has very efficient sampling such that the converge
 |![emcee UI traces](/assets/img/blog3/emcee_UI_KDE_and_traces.png)|![emcee Weak HA traces](/assets/img/blog3/emcee_weak_KDE_and_traces.png)|
 | ------------- |:-------------:|
 |![PyMC3 UI traces](/assets/img/blog3/PyMC3_UI_KDE_and_traces.png)|![PyMC3 Weak HA traces](/assets/img/blog3/PyMC3_weak_KDE_and_traces.png)|
-*Fig 1. A trace and 1-D marginal posterior comparison of each software and model tested. For each, we show the traces for all 6 variables as well as a KDE estimate for each marginal posterior.*
 
-|![emcee UI ppc plot](/assets/img/blog3/emcee_UI_KDE_and_traces.png)|![emcee Weak HA ppc plot](/assets/img/blog3/emcee_weak_KDE_and_traces.png)|
+*Fig 1. A trace and 1-D marginal posterior comparison of each software and model tested. For each, we show the traces for all 6 variables as well as a KDE (kernel density estimate) for each marginal posterior.*
+
+|![emcee UI ppc plot](/assets/img/blog3/emcee_UI_prior_PPCplot.png)|![emcee Weak HA ppc plot](/assets/img/blog3/emcee_weak_prior_PPCplot.png)|
 | ------------- |:-------------:|
-|![PyMC3 UI ppc plot](/assets/img/blog3/PyMC3_UI_KDE_and_traces.png)|![PyMC3 Weak HA ppc plot](/assets/img/blog3/PyMC3_weak_KDE_and_traces.png)|
-*Fig 1. A trace and 1-D marginal posterior comparison of each software and model tested. For each, we show the traces for all 6 variables as well as a KDE estimate for each marginal posterior.*
+|![PyMC3 UI ppc plot](/assets/img/blog3/PyMC3_UI_prior_PPCplot.png)|![PyMC3 Weak HA ppc plot](/assets/img/blog3/PyMC3_HA_model_PPCplot.png)|
+
+*Fig 2. The posterior predictive checks for each model tested. For each plot, 1000 posterior predicitve samples were drawn and plotted as KDEs. A KDE of the mean of those 500 samples and a KDE of the evidence were also plotted.*
+
+|![emcee UI actual vs predicted plot](/assets/img/blog3/emcee_UI_prior_actualvspredictedplot.png)|![emcee Weak HA actual vs predicted plot](/assets/img/blog3/emcee_weak_HA_prior_actualvspredictedplot.png)|
+| ------------- |:-------------:|
+|![PyMC3 UI actual vs predicted plot](/assets/img/blog3/PyMC3_UI_prior_actualvspredictedplot.png)|![PyMC3 Weak HA actual vs predicted plot](/assets/img/blog3/PyMC3_weak_HA_prior_actualvspredictedplot.png)|
+
+*Fig 3. 1000 posterior predictive samples were randomly drawn from each of the four model runs. They were then plotted vs the evidence values to get a check of how well the method predicts our data. It's worth noting that each `emcee` model has pretty significant divergent sampling.*
 
 
 
