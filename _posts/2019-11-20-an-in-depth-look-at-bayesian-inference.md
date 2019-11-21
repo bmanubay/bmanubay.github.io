@@ -8,7 +8,7 @@ comments: true
 ---
 Welcome back to the blog folks! Sorry for the long gap between posts. I've been pretty busy and the technical aspects of today's post has been pretty involved. As a result though, I have A LOT to share (yay)! Today, I'm giving some technical depth to a powerful data science technique that I worked with in my graduate work by giving the full Bayesian treatment to parameterizing a multivariate, non-linear, analytical model. I'll go through doing this in two different software packages, with two different models and a comparitive  analysis of all four parameterizations produced. First, let's do a recap of Bayes' theorem and its usefulness as a data science tool.
 
-$$\P\left(\rho_0\right) \sim \mathit{U}\left(0.6,0.9\right)$$
+$$P\left(\rho_0\right) \sim \mathit{U}\left(0.6,0.9\right)$$
 
 ## Bayes' Theorem, Bayesian Statistics and Bayesian Data Science
 
@@ -74,12 +74,12 @@ $$
 
 $$
 \begin{aligned}
-  & \P\left(\rho_0\right) \sim \mathit{U}\left(0.6,0.9\right)\\
-  & \P\left(\alpha\right) \sim \mathit{U}\left(0,1\right)\\
-  & \P\left(T_0\right) \sim \mathit{U}\left(40,390\right)\\
-  & \P\left(\beta\right) \sim \mathit{U}\left(0,1\right)\\
-  & \left(p_0\right) \sim \mathit{U}\left(2000,27000\right)\\
-  & \left(\sigma\right) \sim \mathit{U}\left(0,1\right)
+  P\left(\rho_0\right) \sim \mathit{U}\left(0.6,0.9\right)\\
+  P\left(\alpha\right) \sim \mathit{U}\left(0,1\right)\\
+  P\left(T_0\right) \sim \mathit{U}\left(40,390\right)\\
+  P\left(\beta\right) \sim \mathit{U}\left(0,1\right)\\
+  \left(p_0\right) \sim \mathit{U}\left(2000,27000\right)\\
+  \left(\sigma\right) \sim \mathit{U}\left(0,1\right)
 \end{aligned}
 $$ 
 
@@ -101,16 +101,16 @@ The second model used changed the uninformative flat priors to weakly informativ
 
 $$
 \begin{aligned}
-  & \P\left(\mu_{\rho_0}\right) \sim \mathcal{N}\left(\mu=0.75,\sigma=0.01\right)
-  & \P\left(\sigma_{\rho_0}\right) \sim \mathcal{HC}\left(s=0.01\right)
-  & \P\left(\rho_0\right) \sim \mathcal{N}\left(\mu_{\rho_0},\sigma_{\rho_0}\right)
-  & \P\left(\mu_{\alpha}\right) \sim \mathcal{N}\left(\mu=5x10^{-3},\sigma=10^{-3}\right)
-  & \P\left(\sigma_{\alpha}\right) \sim \mathcal{HC}\left(s=10^{-3}\right)
-  & \P\left(\alpha\right) \sim \mathcal{N}\left(\mu_{\alpha},\sigma_{\alpha}\right)
-  & \P\left(T_0\right) \sim \mathcal{N}\left(\mu=200,\sigma=10^2\right)
-  & \P\left(\beta\right) \sim \mathcal{N}\left(\mu=0,\sigma=10^{-5}\right)
-  & \left(p_0\right) \sim \mathcal{N}\left(\mu=14000,\sigma=6x10^{3}\right)
-  & \left(\sigma\right) \sim \mathcal{HC}\left(s=0.05\right)
+  P\left(\mu_{\rho_0}\right) \sim \mathcal{N}\left(\mu=0.75,\sigma=0.01\right)\\
+  P\left(\sigma_{\rho_0}\right) \sim \mathcal{HC}\left(s=0.01\right)\\
+  P\left(\rho_0\right) \sim \mathcal{N}\left(\mu_{\rho_0},\sigma_{\rho_0}\right)\\
+  P\left(\mu_{\alpha}\right) \sim \mathcal{N}\left(\mu=5x10^{-3},\sigma=10^{-3}\right)\\
+  P\left(\sigma_{\alpha}\right) \sim \mathcal{HC}\left(s=10^{-3}\right)\\
+  P\left(\alpha\right) \sim \mathcal{N}\left(\mu_{\alpha},\sigma_{\alpha}\right)\\
+  P\left(T_0\right) \sim \mathcal{N}\left(\mu=200,\sigma=10^2\right)\\
+  P\left(\beta\right) \sim \mathcal{N}\left(\mu=0,\sigma=10^{-5}\right)\\
+  \left(p_0\right) \sim \mathcal{N}\left(\mu=14000,\sigma=6x10^{3}\right)\\
+  \left(\sigma\right) \sim \mathcal{HC}\left(s=0.05\right)
 \end{aligned}
 $$  
 
