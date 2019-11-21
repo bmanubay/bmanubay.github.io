@@ -317,12 +317,15 @@ with model:
 ~~~
 As the developers claim, NUTS has very efficient sampling such that the convergence is very fast and nearly all of the samples are uncorrelated. However, sampling can be VERY slow if the sampler gets stuck due to low gradient calculations. The above simulation took about 24 hrs to complete. However, the results were very robust, the chains were converged, there were very few divergent samples and there were a high number of uncorrelated samples. Now, that we have all of the machinery out of the way, let's look at the results!
 ## Analysis
+I will make the analysis and plotting code for the following figures available [here](https://github.com/bmanubay/bayes_parameter_estimation_for_blog/blob/master/Sampler_comparisons_blog3.ipynb).In general for all of the following figures (in each four figure block) `emcee` with uninformative priors is top left, `emcee` with weak hierarchical priors is top right, `PyMC3` with uninformative priors is bottom left and `PyMC3` with weak hierarchical priors is bottom right. Let's start by looking at the distribution of the sampled parameters from each of the methods.   
 
 |![emcee UI marg posterior plot](/assets/img/blog3/emcee_UI_cornerplot.png)|![emcee Weak HA marg posterior plot](/assets/img/blog3/emcee_weak_cornerplot.png)|
 | ------------- |:-------------:|
 |![PyMC3 UI marg posterior plot](/assets/img/blog3/PyMC3_UI_cornerplot.png)|![PyMC3 Weak HA marg posterior plot](/assets/img/blog3/PyMC3_weak_cornerplot.png)|
 
-*Fig 1. Cornerplots were made to visually analyze the 1D and 2D marginal posterior distributions for each of the 4 models*
+*Fig 1. Cornerplots were made to visually analyze the 1D and 2D marginal posterior distributions for each of the 4 models.*
+
+The first thing of note is the strangely histogram bars away from the peaks of the 1D marginal distributions on the `emcee` uninformative prior runs. This is indicative of divergent chains and sampling. It's clear that the priors on $$T_0$$ and $$P_0$$ contributed to poor constraints of those parameters (and the 2D marginals). The `PyMC3` uninformative model also looks to be fairly patchy which is indicative of unconverged chains that would likely converge with more sampling (MH has very slow convergence, so this is unsurprising). Let's do a little more diagnosis with some trace plots.
 
 |![emcee UI traces](/assets/img/blog3/emcee_UI_KDE_and_traces.png)|![emcee Weak HA traces](/assets/img/blog3/emcee_weak_KDE_and_traces.png)|
 | ------------- |:-------------:|
@@ -330,11 +333,15 @@ As the developers claim, NUTS has very efficient sampling such that the converge
 
 *Fig 2. A trace and 1-D marginal posterior comparison of each software and model tested. For each, we show the traces for all 6 variables as well as a KDE (kernel density estimate) for each marginal posterior.*
 
+These plots pretty much echo the expectations drawn from the corner plots. The `emcee` uninformative prior run has quite a few divergent chains and the `PyMC3` uninformative prior run is not converged. The other 2 look like they should (i.e. fuzzy catepillars with constant variance).
+
 |![emcee UI ppc plot](/assets/img/blog3/emcee_UI_prior_PPCplot.png)|![emcee Weak HA ppc plot](/assets/img/blog3/emcee_weak_prior_PPCplot.png)|
 | ------------- |:-------------:|
 |![PyMC3 UI ppc plot](/assets/img/blog3/PyMC3_UI_prior_PPCplot.png)|![PyMC3 Weak HA ppc plot](/assets/img/blog3/PyMC3_HA_model_PPCplot.png)|
 
-*Fig 3. The posterior predictive checks for each model tested. For each plot, 1000 posterior predicitve samples were drawn and plotted as KDEs. A KDE of the mean of those 500 samples and a KDE of the evidence were also plotted.*
+*Fig 3. The posterior predictive checks for each model tested. For each plot, 1000 posterior predicitve samples were drawn and plotted as KDEs. A KDE of the mean of those 1000 samples and a KDE of the evidence were also plotted.*
+
+Here is where we see the `PyMC3` models really show more promise. The plots above show overlays of KDEs of posterior predictive samples and the evidence that we used for the inference. For a perfect model, the evidence line should lie pretty centered in the envelope of posterior predictive samples. We clearly see very little overlap in the `emcee` runs, meaning the model created from those parameters is going to poorly predict our data (and any data outside of the set). However, there is much more overlap in the `PyMC3` runs, which indicates the opposite and good robust predictions. 
 
 |![emcee UI actual vs predicted plot](/assets/img/blog3/emcee_UI_prior_actualvspredictedplot.png)|![emcee Weak HA actual vs predicted plot](/assets/img/blog3/emcee_weak_HA_prior_actualvspredictedplot.png)|
 | ------------- |:-------------:|
@@ -342,8 +349,14 @@ As the developers claim, NUTS has very efficient sampling such that the converge
 
 *Fig 4. 1000 posterior predictive samples were randomly drawn from each of the four model runs. They were then plotted vs the evidence values to get a check of how well the method predicts our data. It's worth noting that each `emcee` model has pretty significant divergent sampling.*
 
+Here is the real nail in the coffin. There are a lot of divergent samples in the `emcee` uninformative prior runs and it shows with all of the predictions deviating away from the 45$$\degree$$ line (showing that the evidence and predictions do not agree). The same can be seen for the other `emcee` run. Both `PyMC3` runs seem to have nearly identical and robust predictions. They agree well with the evidence with some spread around the center line which is due to the uncertainty in the parameters (unlike the regression estimates shown in blue), which is GREAT! An estimator with uncertainty from data is a better and more true estimator!
 
+|![emcee UI summary stats](/assets/img/blog3/emcee_UI_prior_summary_stats.PNG)|![emcee Weak HA summary stats](/assets/img/blog3/emcee_Weak_prior_summary_stats.PNG)|
+| ------------- |:-------------:|
+|![PyMC3 UI summary stats](/assets/img/blog3/PyMC3_UI_prior_summary_stats.PNG)|![PyMC3 Weak HA summary stats](/assets/img/blog3/PyMC3_Weak_prior_summary_stats.PNG)|
 
-[//]: # (Do a quick parameterization in scipy or sklearn for comparison to the Bayesian fits)
+*Fig 5. The summary statistics of all of the model runs are above. Note that we have inherent uncertainty estimates in our parameters which powerful for making robust estimators.*
+
+Take note of the summary statistics above, including the uncertainty estimates for all of our parameters. From left to right, the columns are the mean of the parameter, standard deviation of the parameter, highest posterior density interval (bounded by column hpd_3% and hpd_97%) which is the collection of most likely values of the parameters, the Monte Carlo standard error mean (which is the average error contributed by the algorithm), the Monte Carlo standard error standard deviation (the spread in that errpr), the next four are effective sample number measurements (uncorrelated samples) and the last is the Gelman-Rubin convergence statistic (which gets closer to one as your chains converge in a sampler).
 
 ## Conclusions
