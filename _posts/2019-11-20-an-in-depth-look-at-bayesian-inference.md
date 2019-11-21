@@ -9,6 +9,8 @@ comments: true
 Welcome back to the blog folks! Sorry for the long gap between posts. I've been pretty busy and the technical aspects of today's post has been pretty involved. As a result though, I have A LOT to share (yay)! Today, I'm giving some technical depth to a powerful data science technique that I worked with in my graduate work by giving the full Bayesian treatment to parameterizing a multivariate, non-linear, analytical model. I'll go through doing this in two different software packages, with two different models and a comparitive  analysis of all four parameterizations produced. First, let's do a recap of Bayes' theorem and its usefulness as a data science tool.
 
 
+$$\mathit{U}$$
+
 ## Bayes' Theorem, Bayesian Statistics and Bayesian Data Science
 
 **Bayes' Theorem**  
