@@ -75,12 +75,12 @@ $$
 
 $$
 \begin{aligned}
-  \P\left(\rho_0\right) \sim \mathit{U}\left(0.6,0.9\right)
-  \P\left(\alpha\right) \sim \mathit{U}\left(0,1\right)
-  \P\left(T_0\right) \sim \mathit{U}\left(40,390\right)
-  \P\left(\beta\right) \sim \mathit{U}\left(0,1\right)
-  \left(p_0\right) \sim \mathit{U}\left(2000,27000\right)
-  \left(\sigma\right) \sim \mathit{U}\left(0,1\right)
+  & \P\left(\rho_0\right) \sim \mathit{U}\left(0.6,0.9\right)\\
+  & \P\left(\alpha\right) \sim \mathit{U}\left(0,1\right)\\
+  & \P\left(T_0\right) \sim \mathit{U}\left(40,390\right)\\
+  & \P\left(\beta\right) \sim \mathit{U}\left(0,1\right)\\
+  & \left(p_0\right) \sim \mathit{U}\left(2000,27000\right)\\
+  & \left(\sigma\right) \sim \mathit{U}\left(0,1\right)
 \end{aligned}
 $$ 
 
@@ -102,16 +102,16 @@ The second model used changed the uninformative flat priors to weakly informativ
 
 $$
 \begin{aligned}
-  \P\left(\mu_{\rho_0}\right) ~ \mathcal{N}\left(\mu=0.75,\sigma=0.01\right)
-  \P\left(\sigma_{\rho_0}\right) ~ \mathcal{HC}\left(s=0.01\right)
-  \P\left(\rho_0\right) ~ \mathcal{N}\left(\mu_{\rho_0},\sigma_{\rho_0}\right)
-  \P\left(\mu_{\alpha}\right) ~ \mathcal{N}\left(\mu=5x10^{-3},\sigma=10^{-3}\right)
-  \P\left(\sigma_{\alpha}\right) ~ \mathcal{HC}\left(s=10^{-3}\right)
-  \P\left(\alpha\right) ~ \mathcal{N}\left(\mu_{\alpha},\sigma_{\alpha}\right)
-  \P\left(T_0\right) ~ \mathcal{N}\left(\mu=200,\sigma=10^2\right)
-  \P\left(\beta\right) ~ \mathcal{N}\left(\mu=0,\sigma=10^{-5}\right)
-  \left(p_0\right) ~ \mathcal{N}\left(\mu=14000,\sigma=6x10^{3}\right)
-  \left(\sigma\right) ~ \mathcal{HC}\left(s=0.05\right)
+  & \P\left(\mu_{\rho_0}\right) \sim \mathcal{N}\left(\mu=0.75,\sigma=0.01\right)
+  & \P\left(\sigma_{\rho_0}\right) \sim \mathcal{HC}\left(s=0.01\right)
+  & \P\left(\rho_0\right) \sim \mathcal{N}\left(\mu_{\rho_0},\sigma_{\rho_0}\right)
+  & \P\left(\mu_{\alpha}\right) \sim \mathcal{N}\left(\mu=5x10^{-3},\sigma=10^{-3}\right)
+  & \P\left(\sigma_{\alpha}\right) \sim \mathcal{HC}\left(s=10^{-3}\right)
+  & \P\left(\alpha\right) \sim \mathcal{N}\left(\mu_{\alpha},\sigma_{\alpha}\right)
+  & \P\left(T_0\right) \sim \mathcal{N}\left(\mu=200,\sigma=10^2\right)
+  & \P\left(\beta\right) \sim \mathcal{N}\left(\mu=0,\sigma=10^{-5}\right)
+  & \left(p_0\right) \sim \mathcal{N}\left(\mu=14000,\sigma=6x10^{3}\right)
+  & \left(\sigma\right) \sim \mathcal{HC}\left(s=0.05\right)
 \end{aligned}
 $$  
 
