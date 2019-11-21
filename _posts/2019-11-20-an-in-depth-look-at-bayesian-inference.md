@@ -62,7 +62,9 @@ In the above, $$T$$ is temperature, $$p$$ is pressure and $$\rho$$ is mass densi
 For this little project, the primary differences between the parameterizations were in how the MCMC models were setup and implemented, so it's important to get a detailed run down of what I did. The first model was very vanilla. Uniform priors were used for all of our parameters where the bounds for $$rho_0$$, $$T_0$$ and $$p_0$$ were given by the evidence and the bounds of $$\alpha$$ and $$\beta$$ were just guessed to be between 0 and 1. I also included a sixth parameter for estimate measurement uncertainty ($$\sigma$$) with a uniform prior from 0 to 1 (given the scale of the evidence values). I used a likelihood function assuming normally distributed errors. Below is a nice symbolic summary. 
 
 **Uninformative Prior Model Summary**
+
 *Parameters*
+
 $$
 \begin{aligned}
   \Theta = {\rho_0,\alpha,T_0,\beta,p_0,\sigma}
@@ -70,6 +72,7 @@ $$
 $$   
 
 *Priors*
+
 $$
 \begin{aligned}
   \P\left(\rho_0\right) ~ \mathit{U}\left(0.6,0.9\right)
@@ -82,17 +85,21 @@ $$
 $$ 
 
 *Likelihood*
+
 $$
 \begin{aligned}
    P\left(D \vert \Theta\right) = \Pi_{j=1}^{n} \left(2\pi\sigma^2\right)^{-1/2}\exp\left(-\frac{1}{2}\frac{\left(D_j-M(\Theta)\right)^2}{\sigma^2}\right)
 \end{aligned}
 $$
+
 Where $$M(\Theta)$$ (our forward data model) is Furbish's from earlier.
 
 The second model used changed the uninformative flat priors to weakly informative normal priors on all of the parameters and, additionally, hyperpriors on the mean and standard deviations of the normal priors on $$\rho_0$$ and $$\alpha$$ (making the entire model weakly hierarchical). Ultimately, this choice was made becuase of the strong correlations between the two parameters and the difficulty of `PyMC3`'s gradient-enhanced sampler exploring the parameter space because of it. The choice of likelihood remained the same. Again, this is nicely summarized symbolically.
 
 **Hierarchical Normal Prior Model Summary**
+
 *Priors*
+
 $$
 \begin{aligned}
   \P\left(\mu_{\rho_0}\right) ~ \mathcal{N}\left(\mu=0.75,\sigma=0.01\right)
@@ -107,6 +114,7 @@ $$
   \left(\sigma\right) ~ \mathcal{HC}\left(s=0.05\right)
 \end{aligned}
 $$  
+
 Where $$\mathcal{HC}\left(s\right)$$ is the half-cauchy distribution centered around 0 with scale parameter $$s$$.
 
 ## Implementations in `emcee` and `PyMC3`
