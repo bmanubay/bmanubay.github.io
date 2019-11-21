@@ -68,7 +68,7 @@ $$
   \Theta = {\rho_0,\alpha,T_0,\beta,p_0,\sigma}
 \end{aligned}
 $$   
-$$
+
 *Priors*
 $$
 \begin{aligned}
@@ -79,7 +79,8 @@ $$
   \left(p_0\right) ~ \mathit{U}\left(2000,27000\right)
   \left(\sigma\right) ~ \mathit{U}\left(0,1\right)
 \end{aligned}
-$$  
+$$ 
+
 *Likelihood*
 $$
 \begin{aligned}
@@ -105,8 +106,8 @@ $$
   \left(p_0\right) ~ \mathcal{N}\left(\mu=14000,\sigma=6x10^{3}\right)
   \left(\sigma\right) ~ \mathcal{HC}\left(s=0.05\right)
 \end{aligned}
-Where $$\mathcal{HC}\left(s\right)$$ is the half-cauchy distribution centered around 0 with scale parameter $$s$$.
 $$  
+Where $$\mathcal{HC}\left(s\right)$$ is the half-cauchy distribution centered around 0 with scale parameter $$s$$.
 
 ## Implementations in `emcee` and `PyMC3`
 The two MCMC software packages we used to carry out the posterior sampling, `emcee` and `PyMC3`, are both implemented in Python3. There are clear advantages to both (from speed to diagnostic capability) which will become more clear when we view our results. First, let's import all of our relevant packages that we'll use for our different sampling methods.
@@ -351,9 +352,10 @@ Here is where we see the `PyMC3` models really show more promise. The plots abov
 
 Here is the real nail in the coffin. There are a lot of divergent samples in the `emcee` uninformative prior runs and it shows with all of the predictions deviating away from the 45$$\degree$$ line (showing that the evidence and predictions do not agree). The same can be seen for the other `emcee` run. Both `PyMC3` runs seem to have nearly identical and robust predictions. They agree well with the evidence with some spread around the center line which is due to the uncertainty in the parameters (unlike the regression estimates shown in blue), which is GREAT! An estimator with uncertainty from data is a better and more true estimator!
 
-|![emcee UI summary stats](/assets/img/blog3/emcee_UI_prior_summary_stats.PNG)|![emcee Weak HA summary stats](/assets/img/blog3/emcee_Weak_prior_summary_stats.PNG)|
-| ------------- |:-------------:|
-|![PyMC3 UI summary stats](/assets/img/blog3/PyMC3_UI_prior_summary_stats.PNG)|![PyMC3 Weak HA summary stats](/assets/img/blog3/PyMC3_Weak_prior_summary_stats.PNG)|
+![emcee UI summary stats](/assets/img/blog3/emcee_UI_prior_summary_stats.PNG)
+![emcee Weak HA summary stats](/assets/img/blog3/emcee_Weak_prior_summary_stats.PNG)
+![PyMC3 UI summary stats](/assets/img/blog3/PyMC3_UI_prior_summary_stats.PNG)
+![PyMC3 Weak HA summary stats](/assets/img/blog3/PyMC3_Weak_prior_summary_stats.PNG)
 
 *Fig 5. The summary statistics of all of the model runs are above. Note that we have inherent uncertainty estimates in our parameters which powerful for making robust estimators.*
 
