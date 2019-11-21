@@ -50,13 +50,7 @@ The project that we're doing today is [based on a post I found on Physics Stack 
 
 $$
 \begin{aligned}
-  P\left(D \vert \Theta\right) = \Pi_{j=1}^{n} \left(2\pi\sigma^2\right)^{-1/2}\exp\left(-\frac{1}{2}\frac{\left(D_j-M(\Theta)\right)^2}{\sigma^2}\right)
-\end{aligned}
-$$ 
-
-$$
-\begin{aligned}
-  \rho\left(T,p\right) = \rho_0\left\[1-\alpha\left(T-T_0\right)+\beta\left(p-p_0\right)\right\]
+  \rho\left(T,p\right) = \rho_0\left(1-\alpha\left(T-T_0\right)+\beta\left(p-p_0\right)\right)
 \end{aligned}
 $$ 
 
@@ -79,12 +73,12 @@ $$
 
 $$
 \begin{aligned}
-  \P\left(\rho_0\right) ~ \mathit{U}\left(0.6,0.9\right)
-  \P\left(\alpha\right) ~ \mathit{U}\left(0,1\right)
-  \P\left(T_0\right) ~ \mathit{U}\left(40,390\right)
-  \P\left(\beta\right) ~ \mathit{U}\left(0,1\right)
-  \left(p_0\right) ~ \mathit{U}\left(2000,27000\right)
-  \left(\sigma\right) ~ \mathit{U}\left(0,1\right)
+  \P\left(\rho_0\right) \sim \mathit{U}\left(0.6,0.9\right)
+  \P\left(\alpha\right) \sim \mathit{U}\left(0,1\right)
+  \P\left(T_0\right) \sim \mathit{U}\left(40,390\right)
+  \P\left(\beta\right) \sim \mathit{U}\left(0,1\right)
+  \left(p_0\right) \sim \mathit{U}\left(2000,27000\right)
+  \left(\sigma\right) \sim \mathit{U}\left(0,1\right)
 \end{aligned}
 $$ 
 
