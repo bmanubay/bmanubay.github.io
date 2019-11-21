@@ -33,8 +33,6 @@ This is to say that when we sample from our posterior distribution of parameters
 
 So, why do we care to take a Bayesian approach to statistics (specifically for today, model parameterization) rather than something frequentist like least-squares? One great reason is exploring the possibility of multimodal parameter distributions. Sometimes, there are numerous parameter combinations that are equally likely for our model, given our data. A Bayesian approach to parameterization can make this very apparent, very quickly and can inform us on ways to improve our model form that we're fitting to or the sampling approach to exlore those multiple optima efficiently (things that are hard to diagnose with frequentist data fitting methods). Another, BIG, reason we might use a Bayesian parameterization approach is the robust and simple way that it quantifies uncertainty in parameters AND model estimates. Parameter uncertainties are easily encoded because the process gives you DISTRIBUTIONS of parameters. We can estimate these distributions as something familiar (like a gaussian or cauchy or what have you) and get robust parameter uncertainties from that. Additionally, we can easily account for error in our fitting data by making it part of our likelihood function. Below is an example of how we could modify a likelihood function with normally distributed errors, to also be constrained by the measurement error from our data. 
 
-[//]: # (Add example of adding data error to gaussian likelihood error model)
-
 **Likelihood Function for a Normally Distributed Observation**
 
 $$
@@ -52,11 +50,11 @@ The project that we're doing today is [based on a post I found on Physics Stack 
 
 $$
 \begin{aligned}
-  \rho\left(T,p\right) = \rho_0\left\[1-\alpha\left(T-T_0\right)+\beta\left(p-p_0\right)\right\]
+  \rho\left(T,P\right) = \rho_0\left\[1-\alpha\left(T-T_0\right)+\beta\left(P-P_0\right)\right\]
 \end{aligned}
 $$ 
 
-In the above, $$T$$ is temperature, $$p$$ is pressure and $$\rho$$ is mass density. The parameters $$\alpha$$ and $$\beta$$ are physically relevant quantities known as the isobaric coefficient of thermal expansion and local isothermal compressibility, respectively. The remaining parameters $$\rho_0$$, $$T_0$$ and $$p_0$$ are reference values of density, temperature and pressure likely to occur in the range of values given by the problem of interest. 
+In the above, $$T$$ is temperature, $$P$$ is pressure and $$\rho$$ is mass density. The parameters $$\alpha$$ and $$\beta$$ are physically relevant quantities known as the isobaric coefficient of thermal expansion and local isothermal compressibility, respectively. The remaining parameters $$\rho_0$$, $$T_0$$ and $$P_0$$ are reference values of density, temperature and pressure likely to occur in the range of values given by the problem of interest. 
 
 ## Setting Up the MCMC Model
 For this little project, the primary differences between the parameterizations were in how the MCMC models were setup and implemented, so it's important to get a detailed run down of what I did. The first model was very vanilla. Uniform priors were used for all of our parameters where the bounds for $$rho_0$$, $$T_0$$ and $$p_0$$ were given by the evidence and the bounds of $$\alpha$$ and $$\beta$$ were just guessed to be between 0 and 1. I also included a sixth parameter for estimate measurement uncertainty ($$\sigma$$) with a uniform prior from 0 to 1 (given the scale of the evidence values). I used a likelihood function assuming normally distributed errors. Below is a nice symbolic summary. 
