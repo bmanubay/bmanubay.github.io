@@ -1,14 +1,14 @@
 ---
 layout: post
-title: An In-depth Dive into Using Bayesian Inference
+title: An introduction to resampling methods and why we should use them.
 description: >
-  A deep dive into inference based statistics, how it's different from frequentist approaches and what we can do with it in applied data science contexts.
+  An introduction to resampling methods and why it is such a powerful, useful tool for quantifying uncertainty in predictive models. 
 noindex: true
 comments: true
 ---
-Welcome back to the blog folks! Sorry for the long gap between posts. I've been pretty busy and the technical aspects of today's post has been pretty involved. As a result though, I have A LOT to share (yay)! Today, I'm giving some technical depth to a powerful data science technique that I worked with in my graduate work by giving the full Bayesian treatment to parameterizing a multivariate, non-linear, analytical model. I'll go through doing this in two different software packages, with two different models and a comparitive  analysis of all four parameterizations produced. First, let's do a recap of Bayes' theorem and its usefulness as a data science tool.
+Welcome back to the blog folks! Hopefully, you all are enjoying your holiday season, but also are still ready for some interesting stats methods. Today we're going to make a small foray into the world of resampling methods. Specifically, we are going use them to quantify the uncertainty in the accuracy of a machine learning model that we will code up in `Python`, using the powerful machine learning package `sklearn` or ['Scikit-learn'](scikit-learn.org). The data set for the classification problem I'm looking at today can be found [here](https://github.com/bmanubay/blog4_notebook_resampling/blob/master/breast-cancer-wisconsin-data.csv) on a GitHub repo I made for this post. It's a ~30 feature diagnostic data set where the target was the malignancy or benignness of a breast tumor. Orginally, I found the dataset on Kaggle. Let's start by introducing the concept of resampling and briefly discussing the methods that I'm going to be going over today. 
 
-## Bayes' Theorem, Bayesian Statistics and Bayesian Data Science
+## What is resampling?
 
 **Bayes' Theorem**  
 
