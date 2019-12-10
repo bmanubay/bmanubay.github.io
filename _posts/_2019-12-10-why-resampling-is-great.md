@@ -53,6 +53,7 @@ print("Percent Accuracy: %s" % (result_test_train*100.0))
 ~~~
 Percent Accuracy: 96.49122807017544
 ~~~
+
 Great! Looks like our model predicts data it hasn't seen incredibly well! Let's check a few more diagnostics.
 ~~~python
 cancer_cm = yel.classifier.ConfusionMatrix(model, classes=['B','M'], label_encoder={0: 'B', 1: 'M'})
@@ -62,6 +63,7 @@ cancer_cm.score(X_test, y_test)
 cancer_cm.show(outpath="confusion_matrix_resamp.png",bbox="tight")
 ~~~
 ![confusion matrix_](/assets/img/blog4/confusion_matrix_resamp.png)
+
 The confusion matrix echoes well what the cross validation accuracy did. The vast majority of the predicted and true classes matched. 
 ~~~python
 cv = model_selection.StratifiedKFold(5)
@@ -71,6 +73,7 @@ visualizer.fit(df.loc[:, 'radius_mean':], df['diagnosis'])        # Fit the data
 visualizer.show(outpath="recursive_feature_elim_resamp.png",bbox="tight")           # Finalize and render the figure
 ~~~
 ![recursive feature elimination](/assets/img/blog4/recursive_feature_elim_resamp.png)
+
 If we look at a recursive feature elimination plot, it appears that our accuracy score stops appreciably changing at around 10 features. We could use this to make the fitting process more efficient, but it's not really necessary for the purposes of our demonstrations today. The fitting is already fast and isn't a bottleneck.
 ~~~python
 # Instantiate the classification model and visualizer
@@ -82,9 +85,22 @@ visualizer.score(X_test, y_test)        # Evaluate the model on the test data
 visualizer.show(outpath="classification_report_resamp.png",bbox="tight")
 ~~~
 ![classification report](/assets/img/blog4/classification_report_resamp.png)
+
 Finally, looking at a classification report we see that, in addition to accuracy being very high, the precision (the ability of the classifier not to label as positive a sample that is negative) and recall (the ability of the classifier to find all the positive samples) are also very high. Nothing looks suspect, the classifier works well. 
 
+### Using resampling to place uncertainty of the performance of our classifier
+As I had mentioned earlier, it's good practice to place uncertainty bounds on any model that you fit/train. With a classifier, that isn't super straight forward, but one good practice is to propagate an uncertainty on the performance metrics that you use to rate it. In our case, we'll be doing that with predictive accuracy of data that the trained algorithm has never seen before. The accuracy of our test predictions is given as:
 
+$$
+\begin{aligned}
+\texttt{accuracy}(y, \hat{y}) = \frac{1}{n_\text{samples}} \sum_{i=0}^{n_\text{samples}-1} 1(\hat{y}_i = y_i)
+\end{aligned}
+$$
+
+Where $$\hat{y}_i$$ is the predicted value of the $$i^{th}$$ sample and $$y_i$$ is the corresponding true value. Let's start by looking at the leave-one-out method.
+
+**Leave-one-out**
+As the name implies, leave-one-out splitting is when you train on all of the data points in your set, but one, and then test on that one left out sample. 
 **Bayes' Theorem**  
 
 $$
