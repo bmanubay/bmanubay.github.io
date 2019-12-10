@@ -14,11 +14,76 @@ Let's start by introducing the idea of resampling. Resampling methods are proces
 In the next section we'll use `Python`'s 'Scikit-learn' package in order to train a binary classifier and use several resampling methods in order to put uncertainty bounds on their performance metrics. We'll be investigating the following resampling schemes:
 
 1. Leave-one-out
-2. Leave-K-Out
+2. K-fold
 3. Random permutation
 4. Bootstrapping 
 
 ## Implementing resampling methods in a binary classification problem
+Before we start introducing the resampling methods, let's train our model with a standard train-test split method and look at some of its performance diagnostics. For this initial training, I'm using an 80-20 train-test split. The implementation of training a random forest classifier using `Python`'s 'Scikit-learn' package is shown below.
+### Initial look at our classification problem using a vanilla train-test split
+~~~python
+import pandas as pd
+import numpy as np
+from sklearn import model_selection
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.utils import resample
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+import seaborn as sea
+from yellowbrick.classifier import ConfusionMatrix
+from yellowbrick.model_selection import RFECV
+from yellowbrick.classifier import ClassificationReport
+
+file_name = "breast-cancer-wisconsin-data.csv"
+
+df = pd.read_csv(file_name)
+df=df.drop(columns=['Unnamed: 32']) #There's some weird dummy column showing up that's all nan values (probably has something to do the delimiter reading)
+df=df.dropna() #clean nan values from the getgo
+df.diagnosis = pd.Series(np.where(df.diagnosis.values == 'M', 1, 0), df.index) #Change diagnosis identifiers to 1==M and 0==B for ease of fit and score
+X=df.values[:,2:]
+y=df.values[:,1]
+
+test_size = 0.2
+X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=test_size)
+model = RandomForestClassifier(n_estimators=100)
+model.fit(X_train, y_train)
+result_test_train = model.score(X_test, y_test)
+print("Percent Accuracy: %s" % (result_test_train*100.0))
+~~~
+~~~
+Percent Accuracy: 96.49122807017544
+~~~
+Great! Looks like our model predicts data it hasn't seen incredibly well! Let's check a few more diagnostics.
+~~~python
+cancer_cm = yel.classifier.ConfusionMatrix(model, classes=['B','M'], label_encoder={0: 'B', 1: 'M'})
+cancer_cm.fit(X_train, y_train)
+cancer_cm.score(X_test, y_test)
+
+cancer_cm.show(outpath="confusion_matrix_resamp.png",bbox="tight")
+~~~
+![confusion matrix_](/assets/img/blog4/confusion_matrix_resamp.png)
+The confusion matrix echoes well what the cross validation accuracy did. The vast majority of the predicted and true classes matched. 
+~~~python
+cv = model_selection.StratifiedKFold(5)
+visualizer = RFECV(RandomForestClassifier(n_estimators=100), cv=cv, scoring='f1_weighted')
+
+visualizer.fit(df.loc[:, 'radius_mean':], df['diagnosis'])        # Fit the data to the visualizer
+visualizer.show(outpath="recursive_feature_elim_resamp.png",bbox="tight")           # Finalize and render the figure
+~~~
+![recursive feature elimination](/assets/img/blog4/recursive_feature_elim_resamp.png)
+If we look at a recursive feature elimination plot, it appears that our accuracy score stops appreciably changing at around 10 features. We could use this to make the fitting process more efficient, but it's not really necessary for the purposes of our demonstrations today. The fitting is already fast and isn't a bottleneck.
+~~~python
+# Instantiate the classification model and visualizer
+model = RandomForestClassifier(n_estimators=100)
+visualizer = ClassificationReport(model, classes=['B','M'], label_encoder={0: 'B', 1: 'M'}, support=True)
+
+visualizer.fit(X_train, y_train)        # Fit the visualizer and the model
+visualizer.score(X_test, y_test)        # Evaluate the model on the test data
+visualizer.show(outpath="classification_report_resamp.png",bbox="tight")
+~~~
+![classification report](/assets/img/blog4/classification_report_resamp.png)
+Finally, looking at a classification report we see that, in addition to accuracy being very high, the precision (the ability of the classifier not to label as positive a sample that is negative) and recall (the ability of the classifier to find all the positive samples) are also very high. Nothing looks suspect, the classifier works well. 
+
 
 **Bayes' Theorem**  
 
