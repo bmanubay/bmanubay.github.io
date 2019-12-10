@@ -9,6 +9,16 @@ comments: true
 Welcome back to the blog folks! Hopefully, you all are enjoying your holiday season, but also are still ready for some interesting stats methods. Today we're going to make a small foray into the world of resampling methods. Specifically, we are going use them to quantify the uncertainty in the accuracy of a machine learning model that we will code up in `Python`, using the powerful machine learning package `sklearn` or ['Scikit-learn'](scikit-learn.org). The data set for the classification problem I'm looking at today can be found [here](https://github.com/bmanubay/blog4_notebook_resampling/blob/master/breast-cancer-wisconsin-data.csv) on a GitHub repo I made for this post. It's a ~30 feature diagnostic data set where the target was the malignancy or benignness of a breast tumor. Orginally, I found the dataset on Kaggle. Let's start by introducing the concept of resampling and briefly discussing the methods that I'm going to be going over today. 
 
 ## What is resampling?
+Let's start by introducing the idea of resampling. Resampling methods are processes of repeatedly drawing samples from a data set and calculating a statistic with an estimator in order to learn more about said estimator. In modern contexts, resampling is often used as a robust way to estimate the uncertainty on predictions of a fitted model. When training a machine learning algorithm, we split the available pool of data into distinct sets: one for training and another for testing. The utility here is to test the accuracy of the model on data that it has never seen before (which is obviously a more robust validation). We can use different resampling methods in choosing our train-test splits in order to place uncertainty bounds on the performance metric (or prediction) of our model.
+
+In the next section we'll use `Python`'s 'Scikit-learn' package in order to train a binary classifier and use several resampling methods in order to put uncertainty bounds on their performance metrics. We'll be investigating the following resampling schemes:
+
+1. Leave-one-out
+2. Leave-K-Out
+3. Random permutation
+4. Bootstrapping 
+
+## Implementing resampling methods in a binary classification problem
 
 **Bayes' Theorem**  
 
