@@ -201,7 +201,7 @@ This method is powerful, robust, reliable, but expensive. If your data set is ve
 ![Overlay KDEs](/assets/img/blog4/resample_dist_overlays.png)
 
 
-If we look more closely at our shuffle split and bootstrap distributions (which are probably the most reliable), they look very similar (unsuprisingly). 
+If we look more closely at our shuffle split and bootstrap distributions (which are probably the most reliable), they look very similar (unsuprisingly). If I were to increase the number of repetitions in the shuffle split algorithm, it would probably very closely resemble the bootstrap distribution.
 
 ![Overlay KDEs B&SP](/assets/img/blog4/resample_dist_overlays_just_Shuffsplit_Bootstrap.png)
 
