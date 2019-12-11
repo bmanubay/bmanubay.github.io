@@ -104,6 +104,7 @@ $$
 Where $$\hat{y}_i$$ is the predicted value of the $$i^{th}$$ sample and $$y_i$$ is the corresponding true value. Let's start by looking at the leave-one-out method.
 
 **Leave-one-out**
+
 As the name implies, leave-one-out splitting is when you train on all of the data points in your set, but one, and then test on that one left out sample. This is done for every point in the data set to get a distribution of test estimates. A visual of the splitting is below.  
 
 ![LOO split](/assets/img/blog4/LOO_split_diagram.png)
@@ -122,6 +123,7 @@ Percent Accuracy: 96.30931458699473 (+/- 18.853312241692635)
 Along with the uncertainty being very large, this method is VERY computationally expensive and is best used for smaller data sets. If we want a less robust uncertainty method with a shorter runtime, we can use a different resampling method like K-Fold.
 
 **K-Fold**
+
 As opposed to the previous method, where we leave out every sample one-at-a-time, the K-Fold method splits our data into K different sets and we train our model K times using all combinations of folds as train/test sets. A vizualization of a 10-fold splitting is below.
 
 ![K-Fold split](/assets/img/blog4/KFold_split_diagram.png)
@@ -141,6 +143,7 @@ Percent Accuracy: 95.78947368421053 (+/- 2.956543780061881)
 This method is much better for larger data sets since we only need to train the model K times. However, the uncertainty estimate you get is less robust. If you have a large data set and want an uncertainty estimates, K-Fold splitting with a low K is a great first test.
 
 **Shuffle Split (repeated random permutations)**
+
 If we want to further reduce uncertainty (and possible systematic error) by randomizing our test sets. We can use a shuffle split method. With this we prescribe a test/train split size, shuffle our data set and draw our training set without replacement (the leftover is our test set). This is repeated predetermined number of times to get an uncertainty estimate of our score. The visual is below.
 
 ![Shuffle & split](/assets/img/blog4/shuffsplit_split_diagram.png)
@@ -159,6 +162,7 @@ Percent Accuracy: 95.96491228070177 (+/- 2.294157338705617)
 This method can be very useful when trying to minimize the uncertainty estimate and/or diagnose correlations in the data set. 
 
 **Bootstrapping**
+
 The final method I'm demonstrating is bootstrapping. This has become a gold-standard for estimating uncertainty of an estimator. It is generalizable, easy to set up, estimator/algorithm agnostic and extremely useful for getting variance measurements when it is otherwise difficult or impossible. The bootstrap functions by repeatedly sampling observations from the original data set. These generated subsets can be used to estimate the distribution of a statistic just given our limited, original sample. Unlike the random-permutation method, these subsets are created by sampling with replacement from our full data set. Randomizing you train/test split ratios can provide another level of robustness to your estimator uncertainty.
 
 ~~~python
