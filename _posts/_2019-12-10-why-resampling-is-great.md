@@ -100,7 +100,13 @@ $$
 Where $$\hat{y}_i$$ is the predicted value of the $$i^{th}$$ sample and $$y_i$$ is the corresponding true value. Let's start by looking at the leave-one-out method.
 
 **Leave-one-out**
-As the name implies, leave-one-out splitting is when you train on all of the data points in your set, but one, and then test on that one left out sample. 
+As the name implies, leave-one-out splitting is when you train on all of the data points in your set, but one, and then test on that one left out sample. This is done for every point in the data set to get a distribution of test estimates. Since we are testing on only a single point at a time, the only possible scores for the accuracy are 1 or 0 (right or wrong). This can lead to artificially inflated estimates of uncertainty. Below is the `Python` implementation. 
+~~~python
+loo = model_selection.LeaveOneOut()
+model = RandomForestClassifier(n_estimators=100)
+result_LOO = model_selection.cross_val_score(model, X, y, cv=loo)
+print("Percent Accuracy: %s (+/- %s)" % (result_LOO.mean()*100.0, result_LOO.std()*100.0))
+~~~
 **Bayes' Theorem**  
 
 $$
