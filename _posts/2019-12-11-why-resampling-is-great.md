@@ -62,7 +62,9 @@ cancer_cm.score(X_test, y_test)
 
 cancer_cm.show(outpath="confusion_matrix_resamp.png",bbox="tight")
 ~~~
+
 ![confusion matrix_](/assets/img/blog4/confusion_matrix_resamp.png)
+
 
 The confusion matrix echoes well what the cross validation accuracy did. The vast majority of the predicted and true classes matched. 
 ~~~python
@@ -84,7 +86,9 @@ visualizer.fit(X_train, y_train)        # Fit the visualizer and the model
 visualizer.score(X_test, y_test)        # Evaluate the model on the test data
 visualizer.show(outpath="classification_report_resamp.png",bbox="tight")
 ~~~
+
 ![classification report](/assets/img/blog4/classification_report_resamp.png)
+
 
 Finally, looking at a classification report we see that, in addition to accuracy being very high, the precision (the ability of the classifier not to label as positive a sample that is negative) and recall (the ability of the classifier to find all the positive samples) are also very high. Nothing looks suspect, the classifier works well. 
 
@@ -101,7 +105,9 @@ Where $$\hat{y}_i$$ is the predicted value of the $$i^{th}$$ sample and $$y_i$$ 
 
 **Leave-one-out**
 As the name implies, leave-one-out splitting is when you train on all of the data points in your set, but one, and then test on that one left out sample. This is done for every point in the data set to get a distribution of test estimates. A visual of the splitting is below.  
+
 ![LOO split](/assets/img/blog4/LOO_split_diagram.png)
+
 
 Since we are testing on only a single point at a time, the only possible scores for the accuracy are 1 or 0 (right or wrong). This can lead to large estimates of uncertainty. Below is the `Python` implementation. 
 ~~~python
@@ -117,7 +123,9 @@ Along with the uncertainty being very large, this method is VERY computationally
 
 **K-Fold**
 As opposed to the previous method, where we leave out every sample one-at-a-time, the K-Fold method splits our data into K different sets and we train our model K times using all combinations of folds as train/test sets. A vizualization of a 10-fold splitting is below.
+
 ![K-Fold split](/assets/img/blog4/KFold_split_diagram.png)
+
 
 Since our test sets are larger, the accuracy score per fold is closer to the mean (the average of roughly $$\frac{n}
 {K}$$ test samples), hence the uncertainty estimate is lower (probably less robust though). Below is the `Python` implementation.
@@ -134,7 +142,9 @@ This method is much better for larger data sets since we only need to train the 
 
 **Shuffle Split (repeated random permutations)**
 If we want to further reduce uncertainty (and possible systematic error) by randomizing our test sets. We can use a shuffle split method. With this we prescribe a test/train split size, shuffle our data set and draw our training set without replacement (the leftover is our test set). This is repeated predetermined number of times to get an uncertainty estimate of our score. The visual is below.
+
 ![Shuffle & split](/assets/img/blog4/shuffsplit_split_diagram.png)
+
 
 The diagram shows random permutation splitting for an 80/20 train/test split for 10 replicates. Below is the implementation in `Python`.
 ~~~python
@@ -183,10 +193,14 @@ print("Percent Accuracy: %s (+/- %s)" % (result_bootstrap.mean()*100.0, result_b
 Percent Accuracy: 95.51536528772262 (+/- 1.2476688605638024)
 ~~~
 This method is powerful, robust, reliable, but expensive. If your data set is very large, it can be difficult to implement. We can secondarily compare all of our resampling methods by plotting all of the distributions of our model scores.
+
 ![Overlay KDEs](/assets/img/blog4/resample_dist_overlays.png)
 
+
 If we look more closely at our shuffle split and bootstrap distributions (which are probably the most reliable), they look very similar (unsuprisingly). 
+
 ![Overlay KDEs B&SP](/assets/img/blog4/resample_dist_overlays_just_Shuffsplit_Bootstrap.png)
+
 
 ## Conclusions
 There are many potential resampling methods for estimating uncertainty in a model. These are some good, generalizable ones that can be easily implemented for machine learning algorithms. The bootstrap is likely the most robust and general and is my go-to quick method for uncertainty estimation. It might get its own post in the future because it is very useful! Hope you learned and enjoyed! Until next time, folks. 
