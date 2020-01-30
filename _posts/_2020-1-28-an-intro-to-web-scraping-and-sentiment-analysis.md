@@ -1,202 +1,160 @@
 ---
 layout: post
-title: An introduction to resampling methods and why we should use them.
+title: An introduction to web scraping and sentiment analysis.
 description: >
-  An introduction to resampling methods and why it is such a powerful, useful tool for quantifying uncertainty in predictive models. 
+  An introduction to web scraping, sentiment analysis and how text/web data analysis can be useful in advertising, marketing and 
+  customer service. 
 noindex: true
 comments: true
 ---
-Welcome back to the blog folks! Hopefully, you all are enjoying your holiday season, but also are still ready for some interesting stats methods. Today we're going to make a small foray into the world of resampling methods. Specifically, we are going use them to quantify the uncertainty in the accuracy of a machine learning model that we will code up in `Python`, using the powerful machine learning package `sklearn` or ['Scikit-learn'](scikit-learn.org). The data set for the classification problem I'm looking at today can be found [here](https://github.com/bmanubay/blog4_notebook_resampling/blob/master/breast-cancer-wisconsin-data.csv) on a GitHub repo I made for this post. It's a ~30 feature diagnostic data set where the target was the malignancy or benignness of a breast tumor. Orginally, I found the dataset on Kaggle. Let's start by introducing the concept of resampling and briefly discussing the methods that I'm going to be going over today. 
+Welcome back to the blog folks! Sorry for the long break! It's been a relatively busy holiday season for me, so the blog has taken a back seat for a bit. However, I'm back with more time and ideas, so expect a more frequency for the next few posts. Today, we're going to be giving a short intro to both web scraping and easy to understand and implement sentiment analysis algorithms (like [`VADER`](http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf)). In particular, I've scraped 4 websites over an ~4 year history for articles that are particularly rich in holiday season buzzwords and phrases (think 'Christmas', 'New Year', 'holiday', 'cheer', etc.). For every article, I score the polarity of the text using the `VADER` algorithm, record the counts of whatever holiday phrase is being detected, the article date and a few other items. I then analyze the recorded data as time series to observe how the counts and scores change over the seasons of the 4 years. If this brief description sounds interesting, but maybe isn't totally clear, then enjoy reading!
 
-## What is resampling?
-Let's start by introducing the idea of resampling. Resampling methods are processes of repeatedly drawing samples from a data set and calculating a statistic with an estimator in order to learn more about said estimator. In modern contexts, resampling is often used as a robust way to estimate the uncertainty on predictions of a fitted model. When training a machine learning algorithm, we split the available pool of data into distinct sets: one for training and another for testing. The utility here is to test the accuracy of the model on data that it has never seen before (which is obviously a more robust validation). We can use different resampling methods in choosing our train-test splits in order to place uncertainty bounds on the performance metric (or prediction) of our model.
-
-In the next section we'll use `Python`'s 'Scikit-learn' package in order to train a binary classifier and use several resampling methods in order to put uncertainty bounds on their performance metrics. We'll be investigating the following resampling schemes:
-
-1. Leave-one-out
-2. K-fold
-3. Random permutation
-4. Bootstrapping 
-
-## Implementing resampling methods in a binary classification problem
-Before we start introducing the resampling methods, let's train our model with a standard train-test split method and look at some of its performance diagnostics. For this initial training, I'm using an 80-20 train-test split. The implementation of training a random forest classifier using `Python`'s 'Scikit-learn' package is shown below.
-### Initial look at our classification problem using a vanilla train-test split
-~~~python
-import pandas as pd
-import numpy as np
-from sklearn import model_selection
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.utils import resample
-from sklearn.metrics import accuracy_score
-import matplotlib.pyplot as plt
-import seaborn as sea
-from yellowbrick.classifier import ConfusionMatrix
-from yellowbrick.model_selection import RFECV
-from yellowbrick.classifier import ClassificationReport
-
-file_name = "breast-cancer-wisconsin-data.csv"
-
-df = pd.read_csv(file_name)
-df=df.drop(columns=['Unnamed: 32']) #There's some weird dummy column showing up that's all nan values (probably has something to do the delimiter reading)
-df=df.dropna() #clean nan values from the getgo
-df.diagnosis = pd.Series(np.where(df.diagnosis.values == 'M', 1, 0), df.index) #Change diagnosis identifiers to 1==M and 0==B for ease of fit and score
-X=df.values[:,2:]
-y=df.values[:,1]
-
-test_size = 0.2
-X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=test_size)
-model = RandomForestClassifier(n_estimators=100)
-model.fit(X_train, y_train)
-result_test_train = model.score(X_test, y_test)
-print("Percent Accuracy: %s" % (result_test_train*100.0))
-~~~
-~~~
-Percent Accuracy: 96.49122807017544
-~~~
-
-Great! Looks like our model predicts data it hasn't seen incredibly well! Let's check a few more diagnostics.
-~~~python
-cancer_cm = yel.classifier.ConfusionMatrix(model, classes=['B','M'], label_encoder={0: 'B', 1: 'M'})
-cancer_cm.fit(X_train, y_train)
-cancer_cm.score(X_test, y_test)
-
-cancer_cm.show(outpath="confusion_matrix_resamp.png",bbox="tight")
-~~~
-
-![confusion matrix_](/assets/img/blog4/confusion_matrix_resamp.png)
-
-
-The confusion matrix echoes well what the cross validation accuracy did. The vast majority of the predicted and true classes matched. 
-~~~python
-cv = model_selection.StratifiedKFold(5)
-visualizer = RFECV(RandomForestClassifier(n_estimators=100), cv=cv, scoring='f1_weighted')
-
-visualizer.fit(df.loc[:, 'radius_mean':], df['diagnosis'])        # Fit the data to the visualizer
-visualizer.show(outpath="recursive_feature_elim_resamp.png",bbox="tight")           # Finalize and render the figure
-~~~
-![recursive feature elimination](/assets/img/blog4/recursive_feature_elim_resamp.png)
-
-If we look at a recursive feature elimination plot, it appears that our accuracy score stops appreciably changing at around 10 features. We could use this to make the fitting process more efficient, but it's not really necessary for the purposes of our demonstrations today. The fitting is already fast and isn't a bottleneck.
-~~~python
-# Instantiate the classification model and visualizer
-model = RandomForestClassifier(n_estimators=100)
-visualizer = ClassificationReport(model, classes=['B','M'], label_encoder={0: 'B', 1: 'M'}, support=True)
-
-visualizer.fit(X_train, y_train)        # Fit the visualizer and the model
-visualizer.score(X_test, y_test)        # Evaluate the model on the test data
-visualizer.show(outpath="classification_report_resamp.png",bbox="tight")
-~~~
-
-![classification report](/assets/img/blog4/classification_report_resamp.png)
-
-
-Finally, looking at a classification report we see that, in addition to accuracy being very high, the precision (the ability of the classifier not to label as positive a sample that is negative) and recall (the ability of the classifier to find all the positive samples) are also very high. Nothing looks suspect, the classifier works well. 
-
-### Using resampling to place uncertainty of the performance of our classifier
-As I had mentioned earlier, it's good practice to place uncertainty bounds on any model that you fit/train. With a classifier, that isn't super straight forward, but one good practice is to propagate an uncertainty on the performance metrics that you use to rate it. In our case, we'll be doing that with predictive accuracy of data that the trained algorithm has never seen before. The accuracy of our test predictions is given as:
-
-$$
-\begin{aligned}
-\texttt{accuracy}(y, \hat{y}) = \frac{1}{n_\text{samples}} \sum_{i=0}^{n_\text{samples}-1} 1(\hat{y}_i = y_i)
-\end{aligned}
-$$
-
-Where $$\hat{y}_i$$ is the predicted value of the $$i^{th}$$ sample and $$y_i$$ is the corresponding true value. Let's start by looking at the leave-one-out method.
-
-**Leave-one-out**
-
-As the name implies, leave-one-out splitting is when you train on all of the data points in your set, but one, and then test on that one left out sample. This is done for every point in the data set to get a distribution of test estimates. A visual of the splitting is below.  
-
-![LOO split](/assets/img/blog4/LOO_split_diagram.png)
-
-
-Since we are testing on only a single point at a time, the only possible scores for the accuracy are 1 or 0 (right or wrong). This can lead to large estimates of uncertainty. Below is the `Python` implementation. 
-~~~python
-loo = model_selection.LeaveOneOut()
-model = RandomForestClassifier(n_estimators=100)
-result_LOO = model_selection.cross_val_score(model, X, y, cv=loo)
-print("Percent Accuracy: %s (+/- %s)" % (result_LOO.mean()*100.0, result_LOO.std()*100.0))
-~~~
-~~~
-Percent Accuracy: 96.30931458699473 (+/- 18.853312241692635)
-~~~
-Along with the uncertainty being very large, this method is VERY computationally expensive and is best used for smaller data sets. If we want a less robust uncertainty method with a shorter runtime, we can use a different resampling method like K-Fold.
-
-**K-Fold**
-
-As opposed to the previous method, where we leave out every sample one-at-a-time, the K-Fold method splits our data into K different sets and we train our model K times using all combinations of folds as train/test sets. A vizualization of a 10-fold splitting is below.
-
-![K-Fold split](/assets/img/blog4/KFold_split_diagram.png)
-
-
-Since our test sets are larger, the accuracy score per fold is closer to the mean (the average of roughly $$\frac{n}
-{K}$$ test samples), hence the uncertainty estimate is lower (probably less robust though). Below is the `Python` implementation.
-~~~python
-kfold = model_selection.KFold(n_splits=10)
-model = RandomForestClassifier(n_estimators=100)
-result_kfold = model_selection.cross_val_score(model, X, y, cv=kfold)
-print("Percent Accuracy: %s (+/- %s)" % (result_kfold.mean()*100.0, result_kfold.std()*100.0))
-~~~
-~~~
-Percent Accuracy: 95.78947368421053 (+/- 2.956543780061881)
-~~~
-This method is much better for larger data sets since we only need to train the model K times. However, the uncertainty estimate you get is less robust. If you have a large data set and want an uncertainty estimates, K-Fold splitting with a low K is a great first test.
-
-**Shuffle Split (repeated random permutations)**
-
-If we want to further reduce uncertainty (and possible systematic error) by randomizing our test sets. We can use a shuffle split method. With this we prescribe a test/train split size, shuffle our data set and draw our training set without replacement (the leftover is our test set). This is repeated predetermined number of times to get an uncertainty estimate of our score. The visual is below.
-
-![Shuffle & split](/assets/img/blog4/shuffsplit_split_diagram.png)
-
-
-The diagram shows random permutation splitting for an 80/20 train/test split for 10 replicates. Below is the implementation in `Python`.
-~~~python
-shuffsplit = model_selection.ShuffleSplit(n_splits=10, test_size=test_size)
-model = RandomForestClassifier(n_estimators=100)
-result_shuffsplit = model_selection.cross_val_score(model, X, y, cv=shuffsplit)
-print("Percent Accuracy: %s (+/- %s)" % (result_shuffsplit.mean()*100.0, result_shuffsplit.std()*100.0))
-~~~
-~~~
-Percent Accuracy: 95.96491228070177 (+/- 2.294157338705617)
-~~~
-This method can be very useful when trying to minimize the uncertainty estimate and/or diagnose correlations in the data set. 
-
-**Bootstrapping**
-
-The final method I'm demonstrating is bootstrapping. This has become a gold-standard for estimating uncertainty of an estimator. It is generalizable, easy to set up, estimator/algorithm agnostic and extremely useful for getting variance measurements when it is otherwise difficult or impossible. The bootstrap functions by repeatedly sampling observations from the original data set. These generated subsets can be used to estimate the distribution of a statistic just given our limited, original sample. Unlike the random-permutation method, these subsets are created by sampling with replacement from our full data set. Randomizing you train/test split ratios can provide another level of robustness to your estimator uncertainty.
+## What is webscraping?
+Okay, first thing's first! Let's tackle the concept of web scraping. In general, web scraping is data scraping used for extracting data from websites. Typically, specific data is gathered and copied from the web into local storage for later retrieval or analysis. Scraping can be done manually, but is often automated by a simple bot called a web crawler. Part of today's blog will be showing you all how to make a simple web crawler for RSS feeds using `Python 3` and some of its packages (namely `requests`, `bs4`, `feedparser` and `re`). Let's start with making the necessary imports.
 
 ~~~python
-#reconfigure data values for easier bootstrap indexing
-vals=df.values
-#configure bootstrap
-n_iterations = 1000
-n_size = int(len(df)*0.8)
-result_bootstrap = []
-predictions = []
-test_vals = []
-#run bootstrap
-for i in range(n_iterations):
-    if i%10==1:
-        print(i)
-    #prepare train and test sets
-    train = resample(vals,n_samples=n_size)
-    test = np.array([x for x in vals if x.tolist() not in train.tolist()])
-    #fit model
-    model = RandomForestClassifier(n_estimators=100)
-    model.fit(train[:,2:], train[:,1])
-    #evaluate model
-    prediction = model.predict(test[:,2:])
-    score = model.score(test[:,2:],test[:,1])
-    result_bootstrap.append(score)
-    predictions.append(prediction)
-    test_vals.append(test[:,1])
-result_bootstrap=np.array(result_bootstrap)    
-print("Percent Accuracy: %s (+/- %s)" % (result_bootstrap.mean()*100.0, result_bootstrap.std()*100.0))
+import requests
+import bs4
+from bs4.element import Comment
+import feedparser
+import re
+
+from htmldate import find_date
+import csv
+
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+nltk.download('vader_lexicon')
+sia = SentimentIntensityAnalyzer()
 ~~~
+
+Let's take a look through the packages above and discuss what they're for. Before, I named 4 packages that were most important for this web scraper build: [`requests`](https://requests.readthedocs.io/en/master/), [`bs4`](https://beautiful-soup-4.readthedocs.io/en/latest/), [`feedparser`](https://github.com/kurtmckee/feedparser) and [`re`](https://docs.python.org/3/library/re.html). `requests` allows you to se HTTP requests and connect with sites. `bs4` is a library for  pulling data out of HTML and XML files; it allows us to parse the information from the websites we're scraping. `feedparser` allows us to parse ATOM and RSS feeds. Finally, `re` is a native `Python` library for regular expression operations that allows us to 'clean up' the text we get from a scrape by getting rid of delimiters, punctuations, etc. Some of the other imports you see are for storage or other analyses that we're doing *in vivo* with the scraping. [`htmldate`](https://htmldate.readthedocs.io/en/latest/) is a great, easy-to-use library for finding the publication date of web pages. [`csv`](https://docs.python.org/3/library/csv.html) is just the native `Python` package for reading and writing csv (which I chose to use for this for simplicity familiarity, though XML or JSON might be a better choice). [`nltk`](https://www.nltk.org/) is `Python`'s natural language tool kit and processing library. It is very versatile and powerful, but today I'm just using it for the `VADER` implementation. Now that we have an idea of what everything is for, let's move on to building the crawler.
+
+We'll go piece by piece explaining what each function of the crawler is meant to do. First, I want to build a masking function that filters out any text that isn't the body of the article we're analyzing. That could be metadata, comments, ad information, pictures, etc.
+
+~~~python
+def tag_visible(element):
+    if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
+        return False
+    if isinstance(element, Comment):
+        return False
+    return True
 ~~~
-Percent Accuracy: 95.51536528772262 (+/- 1.2476688605638024)
+
+Pretty much, I've provided common HTML parent element names that I don't want and also the `bs4` built-in class for detecting comments sections and if the text is any of those things, they get thrown out. Next, I want to start by building the function that actually searches my website for whatever holiday-themed string I've specified.
+
+~~~python
+def search_article(url, phrases):
+    """
+    Yield all of the specified phrases that occur in the HTML body of the URL.
+    """
+    response = requests.get(url)
+    soup = bs4.BeautifulSoup(response.text, 'html.parser')
+    texts = soup.findAll(text=True)
+    visible_texts = filter(tag_visible, texts) 
+    visible_text = u" ".join(t.strip() for t in visible_texts)
+    
+    for phrase in phrases:
+        if re.search(r'\b' + re.escape(phrase) + r'\b', visible_text):
+            words = re.findall(r'\b' + re.escape(phrase) + r'\b', visible_text)
+            date = find_date(response.text)
+            polarity_score = sia.polarity_scores(visible_text)['compound']
+            yield phrase, len(words), date, polarity_score
 ~~~
-This method is powerful, robust, reliable, but expensive. If your data set is very large, it can be difficult to implement. We can secondarily compare all of our resampling methods by plotting all of the distributions of our model scores.
+
+First we connect using `request`, parse the HTML using `bs4` and pass it through our article body text filter. Next, in a for-if loop, we parse our text using `re`, searching for our holiday phrases, getting a count of phrase per article, an article date and calculating the polarity of the article with VADER. Next, we need a function to call each article in a RSS feed an return the scraped info I want. 
+
+~~~python
+def search_rss(rss_entries, phrases):
+    """
+    Search articles listed in the RSS entries for phrases, yielding
+    (url, article_title, phrase, phrase_count, datetime, vader_score) tuples.
+    """
+    for entry in rss_entries:
+        for hit_phrase, number, datetime, score in search_article(entry['link'], phrases):
+            yield entry['link'], entry['title'], hit_phrase, number, datetime, score
+~~~
+
+Connecting all of the parts, we have our `main()` function (which is like a standardized point of execution).
+
+~~~python
+def main(rss_url, phrases, output_csv_path, rss_limit=None):
+    rss_entries = feedparser.parse(rss_url).entries[:rss_limit]
+ 
+    with open(output_csv_path, 'a') as f:
+        w = csv.writer(f, delimiter=';', quotechar='"')
+        for url, title, phrase, number, datetime, score in search_rss(rss_entries, phrases):
+            print('"{0}" found {1} times in "{2}" on "{3}". Overall polarity score: "{4}"'.format(phrase, number, title, datetime, score))
+            w.writerow([phrase, number, title, datetime, url, score])
+~~~
+
+Given an RSS feed URL, list of phrases, and output path, we parse the RSS feed for URL entry links and then analyze each linked article for phrase counts, datetime and VADER score, recording each URL-phrase combination as its own row of a CSV. Putting all the code snippets together and placing a top-level script execution for `main()` where I specify the primary RSS sites, the date ranges I'm interested in and the holiday-phrases I want to detect, we have a fully-functioning, automated web crawler!
+
+~~~python
+def tag_visible(element):
+    if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
+        return False
+    if isinstance(element, Comment):
+        return False
+    return True
+
+def search_article(url, phrases):
+    """
+    Yield all of the specified phrases that occur in the HTML body of the URL.
+    """
+    response = requests.get(url)
+    soup = bs4.BeautifulSoup(response.text, 'html.parser')
+    texts = soup.findAll(text=True)
+    visible_texts = filter(tag_visible, texts) 
+    visible_text = u" ".join(t.strip() for t in visible_texts)
+    
+    for phrase in phrases:
+        if re.search(r'\b' + re.escape(phrase) + r'\b', visible_text):
+            words = re.findall(r'\b' + re.escape(phrase) + r'\b', visible_text)
+            date = find_date(response.text)
+            polarity_score = sia.polarity_scores(visible_text)['compound']
+            yield phrase, len(words), date, polarity_score
+
+def search_rss(rss_entries, phrases):
+    """
+    Search articles listed in the RSS entries for phases, yielding
+    (url, article_title, phrase) tuples.
+    """
+    for entry in rss_entries:
+        for hit_phrase, number, datetime, score in search_article(entry['link'], phrases):
+            yield entry['link'], entry['title'], hit_phrase, number, datetime, score
+
+def main(rss_url, phrases, output_csv_path, rss_limit=None):
+    rss_entries = feedparser.parse(rss_url).entries[:rss_limit]
+ 
+    with open(output_csv_path, 'a') as f:
+        w = csv.writer(f, delimiter=';', quotechar='"')
+        for url, title, phrase, number, datetime, score in search_rss(rss_entries, phrases):
+            print('"{0}" found {1} times in "{2}" on "{3}". Overall polarity score: "{4}"'.format(phrase, number, title, datetime, score))
+            w.writerow([phrase, number, title, datetime, url, score])
+
+if __name__ == '__main__':
+    rss_url_base =  ['http://rss.cnn.com/rss/cnn_latest.rss',
+                     'http://feeds.washingtonpost.com/rss/rss_blogpost',
+                     'https://www.wired.com/feed',
+                     'http://feeds.reuters.com/reuters/entertainment']
+    
+    year = ['2019','2018','2017','2016']
+    month = ['12','11','10','09','08','07','06','05','04','03','02','01']
+    day = ['28','21','14','07','01']
+    
+    rss_wayback_archives = ['https://web.archive.org/web/'+yr+mm+dd+'/'+base for yr in year for mm in month for dd in day for base in rss_url_base]
+          
+    phrases = ['holiday', 'cheer', 'give', 'giving', 'family' 'happy', 'gift', 'season', 'tis', 'Jesus',
+               'Christ', 'miracle', 'birth' 'merry', 'new', 'year', 'happy holidays', 'new year', 
+               'Christmas', 'Happy Holidays', 'New Year']
+    
+    for url in rss_wayback_archives:
+        main(url, phrases, 'output_filtered_long.csv', 10000)
+~~~
+
+There are some important things to note about the crawler structure that might be confusing. First, quite a few of my functions use `yield` instead of `return`: the main reason for that is `yield` allows a function to stop executing, send a value back to its caller, but keep enough state to resume where it left off. This allowed me to write the CSV in real time (one article analysis at a time) instead of returning all of my information at the end of the scraping and write to file. This is easier on memory and is a nice feature in case a request fails or there's a hangup (I can start where the CSV stopped recording). Second, I specify a date range for analysis and feed it into URLs all connected to [The Wayback Machine web archive](https://archive.org/web/). RSS feeds aren't typically very long and companies/news sites frequently update them with 25-50 latest entries. Hence, in order to do a historical scraping, I chose 4 days out of each month from the past 4 years and went to the RSS feeds stored by The Wayback Machine on those dates to scrape. This seemed like a fair tradeoff between granularity of getting all possible articles and redundancy in having repeat articles between feed snapshots on consecutive days. Once we run the crawler and waiting about a day (give or take), we end up with ~25k rows of scraped article data :) !
+
+
 
 ![Overlay KDEs](/assets/img/blog4/resample_dist_overlays.png)
 
