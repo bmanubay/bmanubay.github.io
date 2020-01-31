@@ -158,13 +158,38 @@ if __name__ == '__main__':
 There are some important things to note about the crawler structure that might be confusing. First, quite a few of my functions use `yield` instead of `return`: the main reason for that is `yield` allows a function to stop executing, send a value back to its caller, but keep enough state to resume where it left off. This allowed me to write the CSV in real time (one article analysis at a time) instead of returning all of my information at the end of the scraping and write to file. This is easier on memory and is a nice feature in case a request fails or there's a hangup (I can start where the CSV stopped recording). Second, I specify a date range for analysis and feed it into URLs all connected to [The Wayback Machine web archive](https://archive.org/web/). RSS feeds aren't typically very long and companies/news sites frequently update them with 25-50 latest entries. Hence, in order to do a historical scraping, I chose 4 days out of each month from the past 4 years and went to the RSS feeds stored by The Wayback Machine on those dates to scrape. This seemed like a fair tradeoff between granularity of getting all possible articles and redundancy in having repeat articles between feed snapshots on consecutive days. Once we run the crawler and waiting about a day (give or take), we end up with ~25k rows of scraped article data :) !
 
 
+![phrase_agnostic_buzzcount_time](/assets/img/blog5/phrase_agnostic_buzzcount_time.png)
 
-![Overlay KDEs](/assets/img/blog4/resample_dist_overlays.png)
+![phrase_url_agnostic_buzzcount_time](/assets/img/blog5/phrase_url_agnostic_buzzcount_time.png)
+
+![phrase_filter_url_agnostic_buzzcount_time](/assets/img/blog5/phrase_filter_url_agnostic_buzzcount_time.png)
+
+![phrase_url_agnostic_noise_filter_buzzcount_time](/assets/img/blog5/phrase_url_agnostic_noise_filter_buzzcount_time.png)
+
+![phrase_url_agnostic_noise_filter_buzzcount_cumsum_time](/assets/img/blog5/phrase_url_agnostic_noise_filter_buzzcount_cumsum_time.png)
 
 
-If we look more closely at our shuffle split and bootstrap distributions (which are probably the most reliable), they look very similar (unsuprisingly). If I were to increase the number of repetitions in the shuffle split algorithm, it would probably very closely resemble the bootstrap distribution.
 
-![Overlay KDEs B&SP](/assets/img/blog4/resample_dist_overlays_just_Shuffsplit_Bootstrap.png)
+![vader_vs_time](/assets/img/blog5/vader_vs_time.png)
+
+![phrase_filter_vader_vs_time](/assets/img/blog5/phrase_filter_vader_vs_time.png)
+
+
+
+![vader_cumsum_vs_time](/assets/img/blog5/vader_cumsum_vs_time.png)
+
+![phrase_filter_vader_cumsum_vs_time](/assets/img/blog5/phrase_filter_vader_cumsum_vs_time.png)
+
+![noise_filter_vader_cumsum_vs_time](/assets/img/blog5/noise_filter_vader_cumsum_vs_time.png)
+
+
+
+![vader_expanding_mean_vs_time](/assets/img/blog5/vader_expanding_mean_vs_time.png)
+
+![phrase_filter_vader_expanding_mean_vs_time](/assets/img/blog5/phrase_filter_vader_expanding_mean_vs_time.png)
+
+![noise_filter_vader_expanding_mean_vs_time](/assets/img/blog5/noise_filter_vader_expanding_mean_vs_time.png)
+
 
 
 ## Conclusions
