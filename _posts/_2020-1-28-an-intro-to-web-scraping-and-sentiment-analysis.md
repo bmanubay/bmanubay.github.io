@@ -61,7 +61,7 @@ def search_article(url, phrases):
             yield phrase, len(words), date, polarity_score
 ~~~
 
-First we connect using `request`, parse the HTML using `bs4` and pass it through our article body text filter. Next, in a for-if loop, we parse our text using `re`, searching for our holiday phrases, getting a count of phrase per article, an article date and calculating the polarity of the article with VADER. Next, we need a function to call each article in a RSS feed an return the scraped info I want. 
+First we connect using `request`, parse the HTML using `bs4` and pass it through our article body text filter. Next, in a for-if loop, we parse our text using `re`, searching for our holiday phrases, getting a count of phrase per article, an article date and calculating the polarity of the article with `VADER`. Next, we need a function to call each article in a RSS feed an return the scraped info I want. 
 
 ~~~python
 def search_rss(rss_entries, phrases):
@@ -87,7 +87,7 @@ def main(rss_url, phrases, output_csv_path, rss_limit=None):
             w.writerow([phrase, number, title, datetime, url, score])
 ~~~
 
-Given an RSS feed URL, list of phrases, and output path, we parse the RSS feed for URL entry links and then analyze each linked article for phrase counts, datetime and VADER score, recording each URL-phrase combination as its own row of a CSV. Putting all the code snippets together and placing a top-level script execution for `main()` where I specify the primary RSS sites, the date ranges I'm interested in and the holiday-phrases I want to detect, we have a fully-functioning, automated web crawler!
+Given an RSS feed URL, list of phrases, and output path, we parse the RSS feed for URL entry links and then analyze each linked article for phrase counts, datetime and `VADER` score, recording each URL-phrase combination as its own row of a CSV. Putting all the code snippets together and placing a top-level script execution for `main()` where I specify the primary RSS sites, the date ranges I'm interested in and the holiday-phrases I want to detect, we have a fully-functioning, automated web crawler!
 
 ~~~python
 def tag_visible(element):
@@ -154,6 +154,9 @@ if __name__ == '__main__':
 
 There are some important things to note about the crawler structure that might be confusing. First, quite a few of my functions use `yield` instead of `return`: the main reason for that is `yield` allows a function to stop executing, send a value back to its caller, but keep enough state to resume where it left off. This allowed me to write the CSV in real time (one article analysis at a time) instead of returning all of my information at the end of the scraping and write to file. This is easier on memory and is a nice feature in case a request fails or there's a hangup (I can start where the CSV stopped recording). Second, I specify a date range for analysis and feed it into URLs all connected to [The Wayback Machine web archive](https://archive.org/web/). RSS feeds aren't typically very long and companies/news sites frequently update them with 25-50 latest entries. Hence, in order to do a historical scraping, I chose 4 days out of each month from the past 4 years and went to the RSS feeds stored by The Wayback Machine on those dates to scrape. This seemed like a fair tradeoff between granularity of getting all possible articles and redundancy in having repeat articles between feed snapshots on consecutive days. Once we run the crawler and waiting about a day (give or take), we end up with ~25k rows of scraped article data :) !
 
+## Analysis
+
+The analysis for this project ended up being a little sparse due to the scope of the results and my desire to move on to a new project. In the future, I'd like to investigate more robust sentiment analysis algorithms such as `BERT` or some kind of deep-learning/neural net method. For now, I've strictly stuck to a time series analysis of the scraped data and attempted to pull out some trends regarding the appearance of holiday buzz words and how that may relent to sentiment.
 
 |![phrase_agnostic_buzzcount_time](/assets/img/blog5/phrase_agnostic_buzzcount_time.png)|![phrase_url_agnostic_buzzcount_time](/assets/img/blog5/phrase_url_agnostic_buzzcount_time.png)|
 | ------------- |:-------------:|
@@ -161,7 +164,7 @@ There are some important things to note about the crawler structure that might b
 
 *Fig 1. Several types of filters were applied in order to analyze the "buzz phrase" counts per day over 4 years. From left-to-right, top-to-bottom, the plots represent a phrase agnostic daily group sum, where the data points are sorted by url and publication date and summed over those identifiers (phrase identifiers are ignored). The next plot represents a phrase and url agnostic daily group sum, where the data points are simply grouped by date and summed over that index. The third plot is filtered to only include particularly polar holiday buzzwords (holiday, new year, Christmas, gift, etc.) and is a url agnostic daily group sum. The final plot is filtered to only include the "noisier" buzzwords (that are logically more common throughout the year: like new, year, season, etc.) and is a url agnostic daily group sum.*
 
-
+In this first series of plots we see a time series of buzz phrase count vs time. Several grouping methods and word filters have been applied which are described in the caption. Ultimately, the takeaway is that the counts are periodic and tend to peak over the holiday season and in Q1 of each year. This is true for both the strongly polar holiday phrases and the noisier ones. This seems to mostly correlate with a general peak in the news cycle around the holiday season (and election season).
 
 |![vader_vs_time](/assets/img/blog5/vader_vs_time.png)|![phrase_filter_vader_vs_time](/assets/img/blog5/phrase_filter_vader_vs_time.png)|
 | ------------- |:-------------:|
@@ -169,7 +172,7 @@ There are some important things to note about the crawler structure that might b
 
 *Fig 2. Similarly analyses were performed on the VADER scores in order to analyse their time series. The first plot is an unflitered VADER score vs. time. The second plot is the same, but with a filter for the highly polar holiday buzz words.* 
 
-
+The `VADER` score time series plots are slightly more difficult to analyze, but we tend to see higher data density in the middle and bottom edges of the plots around the holiday seasons.
 
 |![vader_cumsum_vs_time](/assets/img/blog5/vader_cumsum_vs_time.png)|![phrase_filter_vader_cumsum_vs_time](/assets/img/blog5/phrase_filter_vader_cumsum_vs_time.png)|
 | ------------- |:-------------:|
