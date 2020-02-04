@@ -167,6 +167,8 @@ There are some important things to note about the crawler structure that might b
 
 
 |![vader_vs_time](/assets/img/blog5/vader_vs_time.png)|![phrase_filter_vader_vs_time](/assets/img/blog5/phrase_filter_vader_vs_time.png)|
+| ------------- |:-------------:|
+| | |
 
 *Fig 2. Similarly analyses were performed on the VADER scores in order to analyse their time series. The first plot is an unflitered VADER score vs. time. The second plot is the same, but with a filter for the highly polar holiday buzz words.* 
 
