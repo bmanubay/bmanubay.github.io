@@ -180,6 +180,9 @@ The `VADER` score time series plots are slightly more difficult to analyze, but 
 
 *Fig 3. The next series of plots are cumulative sums VADER scores over time. The first is the unfilitered VADER cumulative sum vs time. The second is the holiday filtered VADER cumulative sum vs time. The third is the "noisy" buzzword filter VADER cumulative sum vs time.
 
+The cumulative sum of the `VADER` score time series reveals 2 things:
+1) There is a steady increase in `VADER` score sum over time.
+2) The cumulative sum takes sharp positive increases during holiday season.
 
 |![vader_expanding_mean_vs_time](/assets/img/blog5/vader_expanding_mean_vs_time.png)|![phrase_filter_vader_expanding_mean_vs_time](/assets/img/blog5/phrase_filter_vader_expanding_mean_vs_time.png)|
 | ------------- |:-------------:|
@@ -187,6 +190,7 @@ The `VADER` score time series plots are slightly more difficult to analyze, but 
 
 *Fig 4. This series of plots is the same series as in Fig 3, but with expanding means instead of cumulative sums.
 
+The final series of plots is an expanding mean of the `VADER` score over time and they reveal interesting sentiment insights. The first major insight is that average sentiment appears to be going down over time. The news cycle is becoming (generally more negatively polar). The second insight is that 
 
 ## Conclusions
 There are many potential resampling methods for estimating uncertainty in a model. These are some good, generalizable ones that can be easily implemented for machine learning algorithms. The bootstrap is likely the most robust and general and is my go-to quick method for uncertainty estimation. It might get its own post in the future because it is very useful! Hope you learned and enjoyed! Until next time, folks. 
