@@ -158,38 +158,32 @@ if __name__ == '__main__':
 There are some important things to note about the crawler structure that might be confusing. First, quite a few of my functions use `yield` instead of `return`: the main reason for that is `yield` allows a function to stop executing, send a value back to its caller, but keep enough state to resume where it left off. This allowed me to write the CSV in real time (one article analysis at a time) instead of returning all of my information at the end of the scraping and write to file. This is easier on memory and is a nice feature in case a request fails or there's a hangup (I can start where the CSV stopped recording). Second, I specify a date range for analysis and feed it into URLs all connected to [The Wayback Machine web archive](https://archive.org/web/). RSS feeds aren't typically very long and companies/news sites frequently update them with 25-50 latest entries. Hence, in order to do a historical scraping, I chose 4 days out of each month from the past 4 years and went to the RSS feeds stored by The Wayback Machine on those dates to scrape. This seemed like a fair tradeoff between granularity of getting all possible articles and redundancy in having repeat articles between feed snapshots on consecutive days. Once we run the crawler and waiting about a day (give or take), we end up with ~25k rows of scraped article data :) !
 
 
-![phrase_agnostic_buzzcount_time](/assets/img/blog5/phrase_agnostic_buzzcount_time.png)
+|![phrase_agnostic_buzzcount_time](/assets/img/blog5/phrase_agnostic_buzzcount_time.png)|![phrase_url_agnostic_buzzcount_time](/assets/img/blog5/phrase_url_agnostic_buzzcount_time.png)|
+| ------------- |:-------------:|
+|![phrase_filter_url_agnostic_buzzcount_time](/assets/img/blog5/phrase_filter_url_agnostic_buzzcount_time.png)|![phrase_url_agnostic_noise_filter_buzzcount_time](/assets/img/blog5/phrase_url_agnostic_noise_filter_buzzcount_time.png)|
 
-![phrase_url_agnostic_buzzcount_time](/assets/img/blog5/phrase_url_agnostic_buzzcount_time.png)
-
-![phrase_filter_url_agnostic_buzzcount_time](/assets/img/blog5/phrase_filter_url_agnostic_buzzcount_time.png)
-
-![phrase_url_agnostic_noise_filter_buzzcount_time](/assets/img/blog5/phrase_url_agnostic_noise_filter_buzzcount_time.png)
-
-![phrase_url_agnostic_noise_filter_buzzcount_cumsum_time](/assets/img/blog5/phrase_url_agnostic_noise_filter_buzzcount_cumsum_time.png)
+*Fig 1. Several types of filters were applied in order to analyze the "buzz phrase" counts per day over 4 years. From left-to-right, top-to-bottom, the plots represent a phrase agnostic daily group sum, where the data points are sorted by url and publication date and summed over those identifiers (phrase identifiers are ignored). The next plot represents a phrase and url agnostic daily group sum, where the data points are simply grouped by date and summed over that index. The third plot is filtered to only include particularly polar holiday buzzwords (holiday, new year, Christmas, gift, etc.) and is a url agnostic daily group sum. The final plot is filtered to only include the "noisier" buzzwords (that are logically more common throughout the year: like new, year, season, etc.) and is a url agnostic daily group sum.*
 
 
 
-![vader_vs_time](/assets/img/blog5/vader_vs_time.png)
+|![vader_vs_time](/assets/img/blog5/vader_vs_time.png)|![phrase_filter_vader_vs_time](/assets/img/blog5/phrase_filter_vader_vs_time.png)|
 
-![phrase_filter_vader_vs_time](/assets/img/blog5/phrase_filter_vader_vs_time.png)
-
-
-
-![vader_cumsum_vs_time](/assets/img/blog5/vader_cumsum_vs_time.png)
-
-![phrase_filter_vader_cumsum_vs_time](/assets/img/blog5/phrase_filter_vader_cumsum_vs_time.png)
-
-![noise_filter_vader_cumsum_vs_time](/assets/img/blog5/noise_filter_vader_cumsum_vs_time.png)
+*Fig 2. Similarly analyses were performed on the VADER scores in order to analyse their time series. The first plot is an unflitered VADER score vs. time. The second plot is the same, but with a filter for the highly polar holiday buzz words.* 
 
 
 
-![vader_expanding_mean_vs_time](/assets/img/blog5/vader_expanding_mean_vs_time.png)
+|![vader_cumsum_vs_time](/assets/img/blog5/vader_cumsum_vs_time.png)|![phrase_filter_vader_cumsum_vs_time](/assets/img/blog5/phrase_filter_vader_cumsum_vs_time.png)|
+| ------------- |:-------------:|
+|![noise_filter_vader_cumsum_vs_time](/assets/img/blog5/noise_filter_vader_cumsum_vs_time.png)| |
 
-![phrase_filter_vader_expanding_mean_vs_time](/assets/img/blog5/phrase_filter_vader_expanding_mean_vs_time.png)
+*Fig 3. The next series of plots are cumulative sums VADER scores over time. The first is the unfilitered VADER cumulative sum vs time. The second is the holiday filtered VADER cumulative sum vs time. The third is the "noisy" buzzword filter VADER cumulative sum vs time.
 
-![noise_filter_vader_expanding_mean_vs_time](/assets/img/blog5/noise_filter_vader_expanding_mean_vs_time.png)
 
+|![vader_expanding_mean_vs_time](/assets/img/blog5/vader_expanding_mean_vs_time.png)|![phrase_filter_vader_expanding_mean_vs_time](/assets/img/blog5/phrase_filter_vader_expanding_mean_vs_time.png)|
+| ------------- |:-------------:|
+|![noise_filter_vader_expanding_mean_vs_time](/assets/img/blog5/noise_filter_vader_expanding_mean_vs_time.png)| |
+
+*Fig 4. This series of plots is the same series as in Fig 3, but with expanding means instead of cumulative sums.
 
 
 ## Conclusions
