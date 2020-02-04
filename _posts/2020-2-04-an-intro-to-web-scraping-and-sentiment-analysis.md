@@ -180,9 +180,7 @@ The `VADER` score time series plots are slightly more difficult to analyze, but 
 
 *Fig 3. The next series of plots are cumulative sums VADER scores over time. The first is the unfilitered VADER cumulative sum vs time. The second is the holiday filtered VADER cumulative sum vs time. The third is the "noisy" buzzword filter VADER cumulative sum vs time.*
 
-The cumulative sum of the `VADER` score time series reveals 2 things:
-1) There is a steady increase in `VADER` score sum over time.
-2) The cumulative sum takes sharp positive increases during holiday season.
+The cumulative sum of the `VADER` score time series reveals 2 things. First, here is a steady increase in `VADER` score sum over time. Second, the cumulative sum takes sharp positive increases during holiday season.
 
 |![vader_expanding_mean_vs_time](/assets/img/blog5/vader_expanding_mean_vs_time.png)|![phrase_filter_vader_expanding_mean_vs_time](/assets/img/blog5/phrase_filter_vader_expanding_mean_vs_time.png)|
 | ------------- |:-------------:|
